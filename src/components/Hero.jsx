@@ -1,4 +1,15 @@
+import { useState, useEffect } from 'react'
+
 export default function Hero() {
+  const [scrollY, setScrollY] = useState(0)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <section className="relative h-screen flex items-end justify-center overflow-hidden">
       {/* Poster de fundo */}
@@ -7,7 +18,10 @@ export default function Hero() {
           src="/assets/poster-artistas.jpeg"
           alt="Artistas convidados do Zouk Jampa 2026"
           className="w-full h-full object-cover"
-          style={{ objectPosition: 'center 21%' }}
+          style={{
+            objectPosition: 'center 21%',
+            transform: `translateY(${scrollY * 0.35}px) scale(1.1)`,
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-night via-night/30 to-transparent" />
       </div>
