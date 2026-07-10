@@ -1,15 +1,15 @@
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-end justify-center overflow-hidden">
+    <section className="relative h-screen flex items-end justify-center overflow-hidden">
       {/* Poster de fundo */}
       <div className="absolute inset-0">
         <img
           src="/assets/poster-artistas.jpeg"
           alt="Artistas convidados do Zouk Jampa 2026"
-          className="w-full h-full object-cover object-top"
+          className="w-full h-full object-cover"
+          style={{ objectPosition: 'center 21%' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-night via-night/70 to-night/20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-night/60 via-transparent to-transparent h-1/3" />
+        <div className="absolute inset-0 bg-gradient-to-t from-night via-night/30 to-transparent" />
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pb-16 pt-40 text-center flex flex-col items-center">
