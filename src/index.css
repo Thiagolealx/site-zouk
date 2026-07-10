@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0E2A32;
+  color: #FDF6EC;
+  font-family: 'Work Sans', sans-serif;
+}
+
+::selection {
+  background-color: #FF5A6E;
+  color: #0E2A32;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.wave-divider {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.sun-bob {
+  animation: bob 5s ease-in-out infinite;
+}
