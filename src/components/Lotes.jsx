@@ -23,7 +23,7 @@ export default function Lotes() {
           GARANTA SEU INGRESSO
         </h2>
         <p className="font-body text-sand/70">
-          Pagamento por Pix ou cartão. Escolha sua opção abaixo.
+          Pagamento com cartão pelo link oficial. Escolha sua opção abaixo.
         </p>
       </div>
 
