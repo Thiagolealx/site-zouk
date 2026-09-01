@@ -10,7 +10,7 @@ const lotes = [
     nome: 'Full Pass Premium',
     tag: 'Com passeio de catamarã',
     preco: 'R$ 590,00',
-    link: 'https://pay.sumup.com/b2c/XRS94F1DDT',
+    link: 'https://pay.sumup.com/b2c/QDETPPAI',
     destaque: true,
   },
 ]
@@ -23,7 +23,7 @@ export default function Lotes() {
           GARANTA SEU INGRESSO
         </h2>
         <p className="font-body text-sand/70">
-          Pagamento com cartão pelo link oficial. Escolha sua opção abaixo.
+          Pagamento por Pix ou cartão. Escolha sua opção abaixo.
         </p>
       </div>
 

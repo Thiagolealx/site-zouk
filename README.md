@@ -3,7 +3,7 @@
 Landing page do evento Zouk Jampa 2026 (26 a 29 de novembro, João Pessoa - PB).
 React + Vite + TailwindCSS, com formulário de inscrição do Tally embutido
 (mantém a sincronização já existente com o sistema) e botões de pagamento
-via cartão (SumUp).
+via Pix e cartão (SumUp).
 
 ## Rodar localmente
 
@@ -19,14 +19,14 @@ Abre em `http://localhost:5173`.
 - `src/components/Hero.jsx` — abertura com pôster dos artistas e CTA
 - `src/components/Highlights.jsx` — destaques do evento
 - `src/components/Lotes.jsx` — cards de ingresso com links do SumUp
-- `src/components/Pagamento.jsx` — link de pagamento SumUp + WhatsApp
+- `src/components/Pagamento.jsx` — chave Pix com botão de copiar + WhatsApp
 - `src/components/Inscricao.jsx` — formulário Tally embutido
 - `src/components/Comunidade.jsx` — grupo do WhatsApp + Instagram
 
 ## Editar conteúdo
 
 - **Lotes/preços/links do SumUp**: `src/components/Lotes.jsx`, array `lotes`
-- **Link de pagamento / WhatsApp de contato**: `src/components/Pagamento.jsx`, topo do arquivo
+- **Chave Pix / WhatsApp de comprovante**: `src/components/Pagamento.jsx`, topo do arquivo
 - **Destaques do evento**: `src/components/Highlights.jsx`, array `highlights`
 - **Link do grupo do WhatsApp**: `src/components/Comunidade.jsx`
 
