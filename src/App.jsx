@@ -6,6 +6,7 @@ import WaveDivider from './components/WaveDivider'
 import Lotes from './components/Lotes'
 import Pagamento from './components/Pagamento'
 import Inscricao from './components/Inscricao'
+import Camisas from './components/Camisas'
 import Comunidade from './components/Comunidade'
 import Footer from './components/Footer'
 
@@ -21,6 +22,7 @@ export default function App() {
       <Pagamento />
       <WaveDivider flip />
       <Inscricao />
+      <Camisas />
       <Comunidade />
       <Footer />
     </div>
