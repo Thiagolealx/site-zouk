@@ -46,6 +46,19 @@ export const modelos = [
   },
 ]
 
+// Medidas da camiseta oversized masculina, em centímetros.
+export const medidas = {
+  titulo: 'Camiseta oversized masculina',
+  colunas: ['Comprimento', 'Largura peito', 'Ombro a ombro', 'Manga'],
+  linhas: [
+    { tamanho: 'P',  valores: ['76,5 cm', '60 cm', '53 cm', '22 cm'] },
+    { tamanho: 'M',  valores: ['78,5 cm', '62 cm', '54 cm', '23 cm'] },
+    { tamanho: 'G',  valores: ['80,5 cm', '64 cm', '55 cm', '24,5 cm'] },
+    { tamanho: 'GG', valores: ['82,5 cm', '66 cm', '56 cm', '26 cm'] },
+  ],
+  observacao: 'As medidas podem variar de 1 a 3 cm entre confecções.',
+}
+
 // Fotos extras que aparecem só na vitrine da home, junto dos modelos.
 export const vitrineExtras = [
   {

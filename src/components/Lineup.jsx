@@ -20,7 +20,13 @@ const djs = [
   { nome: 'DJ Zen Eyes',    foto: '/assets/lineup/Djs/Dj Zen Eyes.jpg' },
 ]
 
-function PersonCard({ nome, foto }) {
+const fotoVideo = [
+  { nome: 'Olinda Harue',  funcao: 'Videomaker', foto: '/assets/lineup/Foto e Video/Olinda Harue.jpg' },
+  { nome: 'Flaviana Lima', funcao: 'Fotografia', foto: '/assets/lineup/Foto e Video/Flaviana Lima.jpg' },
+  { nome: 'Katatal',       funcao: 'Videomaker', foto: '/assets/lineup/Foto e Video/Katatal.jpg' },
+]
+
+function PersonCard({ nome, funcao, foto }) {
   const [imgError, setImgError] = useState(false)
 
   return (
@@ -51,6 +57,11 @@ function PersonCard({ nome, foto }) {
       <p className="text-center font-body text-sand/80 mt-2 text-sm font-medium tracking-wide">
         {nome}
       </p>
+      {funcao && (
+        <p className="text-center font-body text-sand/45 text-xs tracking-wide">
+          {funcao}
+        </p>
+      )}
     </div>
   )
 }
@@ -64,7 +75,7 @@ export default function Lineup() {
             LINEUP
           </h2>
           <p className="font-script text-xl md:text-2xl text-sun-yellow mt-2">
-            {artistas.length + djs.length} artistas e {djs.length} DJs
+            {artistas.length} artistas · {djs.length} DJs · {fotoVideo.length} em foto e vídeo
           </p>
         </div>
 
@@ -79,13 +90,24 @@ export default function Lineup() {
           </div>
         </div>
 
-        <div>
+        <div className="mb-14">
           <h3 className="font-display text-xl text-sand/40 tracking-widest mb-6 text-center">
             DJS
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             {djs.map((d, i) => (
               <PersonCard key={i} nome={d.nome} foto={d.foto} />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="font-display text-xl text-sand/40 tracking-widest mb-6 text-center">
+            FOTO E VÍDEO
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            {fotoVideo.map((f, i) => (
+              <PersonCard key={i} nome={f.nome} funcao={f.funcao} foto={f.foto} />
             ))}
           </div>
         </div>

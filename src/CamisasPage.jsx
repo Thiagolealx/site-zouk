@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Footer from './components/Footer'
 import {
+  medidas,
   modelos,
   precos,
   TECIDO,
@@ -228,6 +229,58 @@ function FormularioTally() {
   )
 }
 
+function TabelaMedidas() {
+  return (
+    <section id="medidas" className="px-6 py-16 scroll-mt-8">
+      <div className="max-w-3xl mx-auto">
+        <h2 className="font-display text-3xl md:text-4xl text-sand text-center mb-2">
+          TABELA DE MEDIDAS
+        </h2>
+        <p className="font-body text-sand/60 text-center mb-8">
+          📏 {medidas.titulo}
+        </p>
+
+        {/* Em telas estreitas a tabela rola na horizontal em vez de espremer as colunas */}
+        <div className="overflow-x-auto rounded-2xl border border-sand/10">
+          <table className="w-full min-w-[520px] text-left border-collapse">
+            <thead>
+              <tr className="bg-night-light">
+                <th className="font-display text-sand text-lg px-5 py-4">Tam.</th>
+                {medidas.colunas.map((coluna) => (
+                  <th
+                    key={coluna}
+                    className="font-body text-sand/60 text-xs uppercase tracking-widest px-5 py-4"
+                  >
+                    {coluna}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {medidas.linhas.map((linha) => (
+                <tr key={linha.tamanho} className="border-t border-sand/10">
+                  <td className="font-display text-2xl text-sun-yellow px-5 py-4">
+                    {linha.tamanho}
+                  </td>
+                  {linha.valores.map((valor, i) => (
+                    <td key={i} className="font-body text-sand/85 px-5 py-4">
+                      {valor}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="font-body text-sand/50 text-sm text-center mt-4">
+          {medidas.observacao}
+        </p>
+      </div>
+    </section>
+  )
+}
+
 export default function CamisasPage() {
   return (
     <div className="min-h-screen bg-night flex flex-col">
@@ -287,16 +340,26 @@ export default function CamisasPage() {
                   ))}
                 </div>
 
-                <a
-                  href="#pedido"
-                  className="inline-block bg-sunset-gradient text-night font-bold px-8 py-3 rounded-full hover:scale-105 transition-transform"
-                >
-                  Fazer meu pedido
-                </a>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                  <a
+                    href="#pedido"
+                    className="inline-block bg-sunset-gradient text-night font-bold px-8 py-3 rounded-full hover:scale-105 transition-transform"
+                  >
+                    Fazer meu pedido
+                  </a>
+                  <a
+                    href="#medidas"
+                    className="font-body text-sand/70 underline underline-offset-4 hover:text-sand transition-colors"
+                  >
+                    📏 Ver tabela de medidas
+                  </a>
+                </div>
               </div>
             </div>
           ))}
         </div>
+
+        <TabelaMedidas />
 
         <section id="pedido" className="px-6 py-20 md:py-28 scroll-mt-8">
           <div className="max-w-2xl mx-auto text-center mb-10">
