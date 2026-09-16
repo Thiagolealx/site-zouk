@@ -27,11 +27,14 @@ export default function Hero() {
         <span className="font-script text-[26px] text-sun-yellow">
           26 a 29 de novembro · João Pessoa — PB
         </span>
-        <h1 className="font-display uppercase text-sand text-[clamp(48px,9vw,104px)] leading-[0.92] text-balance">
-          Quatro dias de sol,
+        <h1 className="font-display uppercase text-sand text-[clamp(34px,6.2vw,72px)] leading-[0.94] text-balance">
+          Zouk, mar e magia
           <br />
-          mar e zouk
+          dos nossos bailes temáticos
         </h1>
+        <p className="-mt-2 font-display uppercase tracking-[0.06em] text-sun-yellow text-[clamp(17px,2.2vw,28px)]">
+          A terra onde o sol nasce primeiro
+        </p>
         <p className="max-w-[560px] text-[19px] leading-[1.55] text-mist">
           Três bailes, mais de 15 horas de aulas, competição Jack &amp; Jill e um
           domingo inteiro de zouk em alto mar.
