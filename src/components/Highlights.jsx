@@ -24,8 +24,8 @@ const cards = [
     kicker: 'Palco',
     titulo: 'Apresentações especiais',
     texto: 'Shows dos professores e grupos convidados entre os blocos do baile.',
-    src: '/assets/lineup/Artistas/Bruna Peçanha.jpg',
-    pos: 'center 26%',
+    src: '/assets/destaques/apresentacoes.jpg',
+    pos: 'center 33%',
   },
   {
     kicker: 'Mar',
