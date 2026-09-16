@@ -11,8 +11,7 @@ const cards = [
     kicker: 'Aulas',
     titulo: 'Mais de 15 horas de aulas',
     texto: 'Trilhas para todos os níveis, do primeiro passo ao avançado.',
-    src: '/assets/lineup/Artistas/Lucas e Thayná.jpg',
-    pos: 'center 26%',
+    src: '/assets/destaques/aulas.jpg',
   },
   {
     kicker: 'Competição',
