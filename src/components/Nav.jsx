@@ -6,8 +6,7 @@ const itens = [
   { label: 'Destaques', to: '/#o-que-te-espera' },
   { label: 'Lineup', to: '/#lineup' },
   { label: 'Alto Mar', to: '/#alto-mar' },
-  { label: 'Ingressos', to: '/ingressos', path: '/ingressos' },
-  { label: 'Inscrição', to: '/inscricao', path: '/inscricao' },
+  { label: 'Ingressos', to: '/inscricao', path: '/inscricao' },
   { label: 'Camisas', to: '/camisas', path: '/camisas' },
 ]
 
@@ -58,7 +57,7 @@ export default function Nav({ route }) {
 
         <div className="flex-1 flex items-center justify-end gap-2">
           <Link
-            to="/ingressos"
+            to="/inscricao"
             className="px-[18px] py-2.5 rounded-full text-[14.5px] font-bold text-night bg-sunset-gradient whitespace-nowrap hover:brightness-110 transition-[filter]"
           >
             Garantir vaga

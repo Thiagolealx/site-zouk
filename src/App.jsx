@@ -2,13 +2,11 @@ import { useRoute } from './router'
 import Nav from './components/Nav'
 import Footer from './components/Footer'
 import Home from './pages/Home'
-import IngressosPage from './pages/IngressosPage'
 import InscricaoPage from './pages/InscricaoPage'
 import CamisasPage from './CamisasPage'
 
 const paginas = {
   '/': Home,
-  '/ingressos': IngressosPage,
   '/inscricao': InscricaoPage,
   '/camisas': CamisasPage,
 }

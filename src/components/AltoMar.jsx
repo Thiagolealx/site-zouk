@@ -231,7 +231,7 @@ export default function AltoMar() {
 
       <div className="max-w-[1180px] mx-auto px-6 pb-24 text-center">
         <Link
-          to="/ingressos"
+          to="/inscricao?passe=sim"
           className="inline-block px-[30px] py-[15px] rounded-full text-base font-bold text-night bg-sunset-gradient hover:brightness-110 transition-[filter]"
         >
           Quero o passe com catamarã

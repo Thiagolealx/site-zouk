@@ -41,7 +41,7 @@ export default function Hero() {
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           <Link
-            to="/ingressos"
+            to="/inscricao"
             className="px-[30px] py-[15px] rounded-full text-base font-bold text-night bg-sunset-gradient hover:brightness-110 transition-[filter]"
           >
             Ver ingressos

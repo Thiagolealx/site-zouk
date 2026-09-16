@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react'
 
 const NAV_OFFSET = 84 // altura da nav fixa, para a âncora não ficar por baixo dela
 
-export const ROUTES = ['/', '/ingressos', '/inscricao', '/camisas']
+export const ROUTES = ['/', '/inscricao', '/camisas']
+
+// A página de ingressos e a de inscrição viraram uma só: o passe e o
+// pagamento agora vivem dentro do formulário. O endereço antigo continua
+// respondendo para não quebrar link já divulgado.
+const ATALHOS = { '/ingressos': '/inscricao' }
 
 function scrollToHash(hash, instant) {
   if (!hash) {
@@ -25,8 +30,10 @@ export function navigate(to) {
   const url = new URL(to, window.location.origin)
   const samePage = url.pathname === window.location.pathname
 
-  if (!samePage || url.hash !== window.location.hash) {
-    window.history.pushState({}, '', url.pathname + url.hash)
+  // A query entra no push: é por ela que o passe escolhido chega à inscrição.
+  const alvo = url.pathname + url.search + url.hash
+  if (alvo !== window.location.pathname + window.location.search + window.location.hash) {
+    window.history.pushState({}, '', alvo)
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
@@ -88,5 +95,17 @@ export function useRoute() {
     }
   }, [])
 
-  return ROUTES.includes(path) ? path : '/'
+  // Resolve na hora para a árvore nunca renderizar com a rota antiga; o
+  // efeito abaixo só acerta o que aparece na barra de endereço.
+  const destino = ATALHOS[path] || path
+
+  useEffect(() => {
+    if (ATALHOS[path]) {
+      const url = ATALHOS[path] + window.location.search + window.location.hash
+      window.history.replaceState({}, '', url)
+      setPath(ATALHOS[path])
+    }
+  }, [path])
+
+  return ROUTES.includes(destino) ? destino : '/'
 }
