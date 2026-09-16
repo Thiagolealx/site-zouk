@@ -3,6 +3,8 @@ import { useMarquee } from '../hooks/useMarquee'
 const grupos = [
   {
     titulo: 'Artistas',
+    // 6 duplas (12 pessoas) + Bruna Peçanha + Imaculada Gadelha = 14.
+    total: 14,
     pessoas: [
       { nome: 'Rian e Evelin', src: '/assets/lineup/Artistas/Rian e Evelin.jpg' },
       { nome: 'Jeferson e Kaylane', src: '/assets/lineup/Artistas/Jeferson e Kaylane.jpg' },
@@ -16,6 +18,7 @@ const grupos = [
   },
   {
     titulo: 'DJs',
+    total: 6,
     pessoas: [
       { nome: 'DJ Santtus', src: '/assets/lineup/Djs/Dj Santtus.jpg' },
       { nome: 'DJ Zen Eyes', src: '/assets/lineup/Djs/Dj Zen Eyes.jpg' },
@@ -27,6 +30,7 @@ const grupos = [
   },
   {
     titulo: 'Foto e vídeo',
+    total: 3,
     pessoas: [
       { nome: 'Olinda Harue', funcao: 'Videomaker', src: '/assets/lineup/Foto e Video/Olinda Harue.jpg' },
       { nome: 'Flaviana Lima', funcao: 'Fotografia', src: '/assets/lineup/Foto e Video/Flaviana Lima.jpg' },
@@ -35,7 +39,7 @@ const grupos = [
   },
 ]
 
-function Grupo({ titulo, pessoas }) {
+function Grupo({ titulo, total, pessoas }) {
   const rail = useMarquee()
 
   return (
@@ -45,7 +49,7 @@ function Grupo({ titulo, pessoas }) {
           {titulo}
         </h3>
         <span className="text-sm font-semibold text-sun-yellow">
-          {pessoas.length} confirmados
+          {total} confirmados
         </span>
         <div className="flex-1 h-px bg-[#24484F]" />
       </div>
