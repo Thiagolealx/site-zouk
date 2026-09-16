@@ -50,11 +50,16 @@ function Grupo({ titulo, pessoas }) {
         <div className="flex-1 h-px bg-[#24484F]" />
       </div>
 
+      {/* Sem cópia, a lista não enche o trilho: centraliza em vez de deixar um
+          vão à direita. Centralizar um trilho que rola esconderia o começo da
+          lista, por isso a condição. */}
       <div
         ref={rail.ref}
         onMouseEnter={rail.onMouseEnter}
         onMouseLeave={rail.onMouseLeave}
-        className="rail flex gap-[18px] overflow-x-auto pb-1.5"
+        className={`rail flex gap-[18px] overflow-x-auto pb-1.5 ${
+          rail.duplicar ? '' : 'justify-center'
+        }`}
       >
         {/* A cópia só entra quando o trilho precisa rolar — ver useMarquee. */}
         {(rail.duplicar ? [...pessoas, ...pessoas] : pessoas).map((pessoa, i) => (

@@ -66,7 +66,9 @@ export default function Highlights() {
           ref={rail.ref}
           onMouseEnter={rail.onMouseEnter}
           onMouseLeave={rail.onMouseLeave}
-          className="rail mt-9 flex gap-5 overflow-x-auto pb-2"
+          className={`rail mt-9 flex gap-5 overflow-x-auto pb-2 ${
+            rail.duplicar ? '' : 'justify-center'
+          }`}
         >
           {/* A cópia é o que faz o laço não ter emenda — ver useMarquee. */}
           {(rail.duplicar ? [...cards, ...cards] : cards).map((card, i) => (
