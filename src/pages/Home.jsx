@@ -1,6 +1,7 @@
 import Hero from '../components/Hero'
 import Highlights from '../components/Highlights'
 import Lineup from '../components/Lineup'
+import Camisas from '../components/Camisas'
 import AltoMar from '../components/AltoMar'
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
       <Hero />
       <Highlights />
       <Lineup />
+      <Camisas />
       <AltoMar />
     </>
   )
