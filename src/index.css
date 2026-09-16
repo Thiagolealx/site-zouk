@@ -31,6 +31,8 @@ body {
    O overflow continua, para quem quiser arrastar com o dedo ou o trackpad. */
 .rail {
   scrollbar-width: none;
+  /* No celular, arrastar o trilho até a ponta não pode virar "voltar página". */
+  overscroll-behavior-x: contain;
 }
 
 .rail::-webkit-scrollbar {
