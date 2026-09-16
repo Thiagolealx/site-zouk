@@ -68,8 +68,8 @@ export default function Highlights() {
           onMouseLeave={rail.onMouseLeave}
           className="rail mt-9 flex gap-5 overflow-x-auto pb-2"
         >
-          {/* Lista duplicada: é o que faz o laço do carrossel não ter emenda. */}
-          {[...cards, ...cards].map((card, i) => (
+          {/* A cópia é o que faz o laço não ter emenda — ver useMarquee. */}
+          {(rail.duplicar ? [...cards, ...cards] : cards).map((card, i) => (
             <article
               key={i}
               aria-hidden={i >= cards.length}

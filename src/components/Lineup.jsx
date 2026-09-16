@@ -56,8 +56,8 @@ function Grupo({ titulo, pessoas }) {
         onMouseLeave={rail.onMouseLeave}
         className="rail flex gap-[18px] overflow-x-auto pb-1.5"
       >
-        {/* Duplicado pelo mesmo motivo do carrossel de destaques. */}
-        {[...pessoas, ...pessoas].map((pessoa, i) => (
+        {/* A cópia só entra quando o trilho precisa rolar — ver useMarquee. */}
+        {(rail.duplicar ? [...pessoas, ...pessoas] : pessoas).map((pessoa, i) => (
           <figure key={i} aria-hidden={i >= pessoas.length} className="m-0 flex-[0_0_200px]">
             <div className="aspect-[9/16] rounded-[14px] overflow-hidden border border-line hover:border-coral transition-colors bg-[#0F2E35]">
               <img
