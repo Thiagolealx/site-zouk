@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import Footer from './components/Footer'
+import { useTallyEmbed } from './hooks/useTallyEmbed'
 import {
   medidas,
   modelos,
@@ -160,16 +160,7 @@ function FormularioTally() {
   // Trocar a key remonta o iframe, devolvendo o formulário em branco.
   const [tentativa, setTentativa] = useState(0)
 
-  useEffect(() => {
-    const carregar = () => window.Tally?.loadEmbeds()
-
-    if (window.Tally) {
-      carregar()
-    } else {
-      const script = document.querySelector('script[src*="tally.so/widgets/embed.js"]')
-      script?.addEventListener('load', carregar)
-    }
-  }, [tentativa])
+  const iframeRef = useTallyEmbed(tentativa)
 
   // O iframe do Tally avisa a página a cada envio (ver embed.js: postMessage
   // com um JSON cujo `event` é 'Tally.FormSubmitted').
@@ -199,8 +190,8 @@ function FormularioTally() {
     <>
       <iframe
         key={tentativa}
+        ref={iframeRef}
         data-tally-src={src}
-        src={src}
         loading="lazy"
         width="100%"
         height="900"
@@ -231,7 +222,7 @@ function FormularioTally() {
 
 function TabelaMedidas() {
   return (
-    <section id="medidas" className="px-6 py-16 scroll-mt-8">
+    <section id="medidas" className="px-6 py-16 scroll-mt-24">
       <div className="max-w-3xl mx-auto">
         <h2 className="font-display text-3xl md:text-4xl text-sand text-center mb-2">
           TABELA DE MEDIDAS
@@ -283,21 +274,9 @@ function TabelaMedidas() {
 
 export default function CamisasPage() {
   return (
-    <div className="min-h-screen bg-night flex flex-col">
-      <header className="border-b border-sand/10 px-6 py-5">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <a
-            href="/"
-            className="font-body text-sm text-sand/70 hover:text-sand transition-colors"
-          >
-            ← Voltar ao site
-          </a>
-          <img src="/assets/logo-joya.png" alt="Zouk Jampa" className="w-10 opacity-80" />
-        </div>
-      </header>
-
-      <main className="flex-1">
-        <section className="px-6 pt-16 pb-12 text-center">
+    <div className="bg-night">
+      <main>
+        <section className="px-6 pt-[140px] pb-12 text-center">
           <h1 className="font-display text-4xl md:text-6xl text-sand mb-4">
             CAMISAS ZOUK JAMPA
           </h1>
@@ -315,7 +294,7 @@ export default function CamisasPage() {
             <div
               key={modelo.id}
               id={modelo.id}
-              className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center scroll-mt-8"
+              className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center scroll-mt-24"
             >
               <Galeria modelo={modelo} />
 
@@ -361,7 +340,7 @@ export default function CamisasPage() {
 
         <TabelaMedidas />
 
-        <section id="pedido" className="px-6 py-20 md:py-28 scroll-mt-8">
+        <section id="pedido" className="px-6 py-20 md:py-28 scroll-mt-24">
           <div className="max-w-2xl mx-auto text-center mb-10">
             <h2 className="font-display text-3xl md:text-5xl text-sand mb-4">
               FAZER MEU PEDIDO
@@ -391,8 +370,6 @@ export default function CamisasPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

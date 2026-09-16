@@ -1,31 +1,26 @@
-import Hero from './components/Hero'
-import Countdown from './components/Countdown'
-import Highlights from './components/Highlights'
-import Lineup from './components/Lineup'
-import WaveDivider from './components/WaveDivider'
-import AltoMar from './components/AltoMar'
-import Lotes from './components/Lotes'
-import Pagamento from './components/Pagamento'
-import Inscricao from './components/Inscricao'
-import Camisas from './components/Camisas'
-import Comunidade from './components/Comunidade'
+import { useRoute } from './router'
+import Nav from './components/Nav'
 import Footer from './components/Footer'
+import Home from './pages/Home'
+import IngressosPage from './pages/IngressosPage'
+import InscricaoPage from './pages/InscricaoPage'
+import CamisasPage from './CamisasPage'
+
+const paginas = {
+  '/': Home,
+  '/ingressos': IngressosPage,
+  '/inscricao': InscricaoPage,
+  '/camisas': CamisasPage,
+}
 
 export default function App() {
+  const route = useRoute()
+  const Pagina = paginas[route]
+
   return (
     <div className="min-h-screen bg-night">
-      <Hero />
-      <Countdown />
-      <Highlights />
-      <Lineup />
-      <AltoMar />
-      <WaveDivider />
-      <Lotes />
-      <Pagamento />
-      <WaveDivider flip />
-      <Inscricao />
-      <Camisas />
-      <Comunidade />
+      <Nav route={route} />
+      <Pagina />
       <Footer />
     </div>
   )

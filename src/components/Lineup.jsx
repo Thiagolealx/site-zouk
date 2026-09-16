@@ -1,116 +1,110 @@
-import { useState } from 'react'
+import { useMarquee } from '../hooks/useMarquee'
 
-const artistas = [
-  { nome: 'Bruna Peçanha',     foto: '/assets/lineup/Artistas/Bruna Peçanha.jpg' },
-  { nome: 'Dan e Barros',      foto: '/assets/lineup/Artistas/Dan e Barros.jpg' },
-  { nome: 'Imaculada Gadelha', foto: '/assets/lineup/Artistas/Imaculada Gadelha.jpg' },
-  { nome: 'Jeferson e Kaylane',foto: '/assets/lineup/Artistas/Jeferson e Kaylane.jpg' },
-  { nome: 'Lucas e Thayná',    foto: '/assets/lineup/Artistas/Lucas e Thayná.jpg' },
-  { nome: 'Rian e Evelin',     foto: '/assets/lineup/Artistas/Rian e Evelin.jpg' },
-  { nome: 'Victor e Rosa',     foto: '/assets/lineup/Artistas/Victor e Rosa.jpg' },
-  { nome: 'Viniel e Luanna',   foto: '/assets/lineup/Artistas/Viniel e Luanna.jpg' },
+const grupos = [
+  {
+    titulo: 'Artistas',
+    pessoas: [
+      { nome: 'Rian e Evelin', src: '/assets/lineup/Artistas/Rian e Evelin.jpg' },
+      { nome: 'Jeferson e Kaylane', src: '/assets/lineup/Artistas/Jeferson e Kaylane.jpg' },
+      { nome: 'Viniel e Luanna', src: '/assets/lineup/Artistas/Viniel e Luanna.jpg' },
+      { nome: 'Lucas e Thayná', src: '/assets/lineup/Artistas/Lucas e Thayná.jpg' },
+      { nome: 'Victor e Rosa', src: '/assets/lineup/Artistas/Victor e Rosa.jpg' },
+      { nome: 'Dan e Barros', src: '/assets/lineup/Artistas/Dan e Barros.jpg' },
+      { nome: 'Bruna Peçanha', src: '/assets/lineup/Artistas/Bruna Peçanha.jpg' },
+      { nome: 'Imaculada Gadelha', src: '/assets/lineup/Artistas/Imaculada Gadelha.jpg' },
+    ],
+  },
+  {
+    titulo: 'DJs',
+    pessoas: [
+      { nome: 'DJ Santtus', src: '/assets/lineup/Djs/Dj Santtus.jpg' },
+      { nome: 'DJ Zen Eyes', src: '/assets/lineup/Djs/Dj Zen Eyes.jpg' },
+      { nome: 'DJ Gabs', src: '/assets/lineup/Djs/Dj Gabs.jpg' },
+      { nome: 'DJ Auler', src: '/assets/lineup/Djs/Dj Auler.jpg' },
+      { nome: 'DJ Pedro Lucas', src: '/assets/lineup/Djs/Dj Pedro Lucas.jpg' },
+      { nome: 'DJ WB', src: '/assets/lineup/Djs/Dj WB.jpg' },
+    ],
+  },
+  {
+    titulo: 'Foto e vídeo',
+    pessoas: [
+      { nome: 'Olinda Harue', funcao: 'Videomaker', src: '/assets/lineup/Foto e Video/Olinda Harue.jpg' },
+      { nome: 'Flaviana Lima', funcao: 'Fotografia', src: '/assets/lineup/Foto e Video/Flaviana Lima.jpg' },
+      { nome: 'Katatal', funcao: 'Videomaker', src: '/assets/lineup/Foto e Video/Katatal.jpg' },
+    ],
+  },
 ]
 
-const djs = [
-  { nome: 'DJ Auler',       foto: '/assets/lineup/Djs/Dj Auler.jpg' },
-  { nome: 'DJ Gabs',        foto: '/assets/lineup/Djs/Dj Gabs.jpg' },
-  { nome: 'DJ Pedro Lucas', foto: '/assets/lineup/Djs/Dj Pedro Lucas.jpg' },
-  { nome: 'DJ Santtus',     foto: '/assets/lineup/Djs/Dj Santtus.jpg' },
-  { nome: 'DJ WB',          foto: '/assets/lineup/Djs/Dj WB.jpg' },
-  { nome: 'DJ Zen Eyes',    foto: '/assets/lineup/Djs/Dj Zen Eyes.jpg' },
-]
-
-const fotoVideo = [
-  { nome: 'Olinda Harue',  funcao: 'Videomaker', foto: '/assets/lineup/Foto e Video/Olinda Harue.jpg' },
-  { nome: 'Flaviana Lima', funcao: 'Fotografia', foto: '/assets/lineup/Foto e Video/Flaviana Lima.jpg' },
-  { nome: 'Katatal',       funcao: 'Videomaker', foto: '/assets/lineup/Foto e Video/Katatal.jpg' },
-]
-
-function PersonCard({ nome, funcao, foto }) {
-  const [imgError, setImgError] = useState(false)
+function Grupo({ titulo, pessoas }) {
+  const rail = useMarquee()
 
   return (
-    <div className="group cursor-default">
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-sun-orange/20 hover:border-sun-orange/55 hover:scale-105 transition-all duration-300 bg-night-light">
-        {!imgError ? (
-          <>
-            <img
-              src={foto}
-              alt={nome}
-              className="absolute inset-0 w-full h-full object-cover object-top"
-              onError={() => setImgError(true)}
-            />
-            {/* Gradient: escurece topo e rodapé para fundir o fundo laranja dos flyers com o tema dark */}
-            <div className="absolute inset-0 bg-gradient-to-b from-night/65 via-transparent to-night/85 pointer-events-none" />
-            {/* Vinheta radial nas bordas laterais */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse at center, transparent 45%, rgba(14,42,50,0.6) 100%)' }}
-            />
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-sand/20 text-5xl select-none">♪</span>
-          </div>
-        )}
+    <div className="mt-14">
+      <div className="flex items-center gap-4 mb-6">
+        <h3 className="font-display text-[26px] tracking-[0.08em] uppercase text-sand">
+          {titulo}
+        </h3>
+        <span className="text-sm font-semibold text-sun-yellow">
+          {pessoas.length} confirmados
+        </span>
+        <div className="flex-1 h-px bg-[#24484F]" />
       </div>
-      <p className="text-center font-body text-sand/80 mt-2 text-sm font-medium tracking-wide">
-        {nome}
-      </p>
-      {funcao && (
-        <p className="text-center font-body text-sand/45 text-xs tracking-wide">
-          {funcao}
-        </p>
-      )}
+
+      <div
+        ref={rail.ref}
+        onMouseEnter={rail.onMouseEnter}
+        onMouseLeave={rail.onMouseLeave}
+        className="rail flex gap-[18px] overflow-x-auto pb-1.5"
+      >
+        {/* Duplicado pelo mesmo motivo do carrossel de destaques. */}
+        {[...pessoas, ...pessoas].map((pessoa, i) => (
+          <figure key={i} aria-hidden={i >= pessoas.length} className="m-0 flex-[0_0_200px]">
+            <div className="aspect-[9/16] rounded-[14px] overflow-hidden border border-line hover:border-coral transition-colors bg-[#0F2E35]">
+              <img
+                src={pessoa.src}
+                alt={pessoa.nome}
+                loading="lazy"
+                className="block w-full h-full object-cover"
+              />
+            </div>
+            <figcaption className="mt-2.5 text-[15px] font-bold text-sand">
+              {pessoa.nome}
+            </figcaption>
+            {pessoa.funcao && (
+              <p className="text-[13px] text-haze">{pessoa.funcao}</p>
+            )}
+          </figure>
+        ))}
+      </div>
     </div>
   )
 }
 
 export default function Lineup() {
   return (
-    <section className="py-16 md:py-20 bg-night">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="font-display text-5xl md:text-7xl text-sand tracking-widest">
-            LINEUP
+    <section id="lineup" className="py-24 border-t border-rule">
+      <div className="max-w-[1180px] mx-auto px-6">
+        <div className="text-center">
+          <h2 className="font-display uppercase text-sand text-[clamp(34px,5vw,56px)]">
+            Lineup
           </h2>
-          <p className="font-script text-xl md:text-2xl text-sun-yellow mt-2">
-            {artistas.length} artistas · {djs.length} DJs · {fotoVideo.length} em foto e vídeo
+          <p className="mt-2.5 font-script text-2xl text-sun-yellow">
+            quem faz o Zouk Jampa acontecer
           </p>
         </div>
 
-        <div className="mb-14">
-          <h3 className="font-display text-xl text-sand/40 tracking-widest mb-6 text-center">
-            ARTISTAS
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {artistas.map((a, i) => (
-              <PersonCard key={i} nome={a.nome} foto={a.foto} />
-            ))}
-          </div>
-        </div>
+        <figure className="mt-9 mx-auto max-w-[520px] rounded-[20px] overflow-hidden border border-line bg-[#0F2E35]">
+          <img
+            src="/assets/poster-artistas.jpeg"
+            alt="Cartaz com o lineup completo do Zouk Jampa 2026"
+            loading="lazy"
+            className="block w-full h-auto"
+          />
+        </figure>
 
-        <div className="mb-14">
-          <h3 className="font-display text-xl text-sand/40 tracking-widest mb-6 text-center">
-            DJS
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            {djs.map((d, i) => (
-              <PersonCard key={i} nome={d.nome} foto={d.foto} />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h3 className="font-display text-xl text-sand/40 tracking-widest mb-6 text-center">
-            FOTO E VÍDEO
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            {fotoVideo.map((f, i) => (
-              <PersonCard key={i} nome={f.nome} funcao={f.funcao} foto={f.foto} />
-            ))}
-          </div>
-        </div>
+        {grupos.map((grupo) => (
+          <Grupo key={grupo.titulo} {...grupo} />
+        ))}
       </div>
     </section>
   )

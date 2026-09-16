@@ -7,14 +7,34 @@ html {
 }
 
 body {
-  background-color: #0E2A32;
-  color: #FDF6EC;
-  font-family: 'Work Sans', sans-serif;
+  background-color: #0E2A30;
+  color: #FFF7E8;
+  font-family: 'Barlow', sans-serif;
 }
 
 ::selection {
-  background-color: #FF5A6E;
-  color: #0E2A32;
+  background-color: #FB6A55;
+  color: #0E2A30;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1D4148;
+  border-radius: 8px;
+}
+
+/* Trilhos dos carrosséis: rolam sozinhos, então a barra some.
+   O overflow continua, para quem quiser arrastar com o dedo ou o trackpad. */
+.rail {
+  scrollbar-width: none;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
 }
 
 /* Respect reduced motion preferences */
@@ -25,19 +45,4 @@ body {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-.wave-divider {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-}
-
-.sun-bob {
-  animation: bob 5s ease-in-out infinite;
 }
