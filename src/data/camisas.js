@@ -65,8 +65,11 @@ export const vitrineExtras = [
     id: 'looks',
     src: '/assets/camisas/vitrine-looks.jpeg',
     titulo: 'Cropped no corpo',
-    legenda: 'Inca e azul marinho',
-    alt: 'Modelos vestindo as camisas cropped Zouk Jampa nas cores inca e azul marinho',
+    legenda: 'Inca, preta e azul marinho',
+    alt: 'Modelos vestindo as camisas cropped Zouk Jampa nas cores inca, preta e azul marinho',
+    // Recalibrado para a foto nova: mais alto cortava a cabeça das modelos,
+    // mais baixo perdia a estampa das costas da camisa azul.
+    pos: 'center 20%',
   },
 ]
 
