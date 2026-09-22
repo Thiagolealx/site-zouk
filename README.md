@@ -18,6 +18,7 @@ Abre em `http://localhost:5173`.
 
 - `src/components/Hero.jsx` — abertura com pôster dos artistas e CTA
 - `src/components/Highlights.jsx` — destaques do evento
+- `src/components/Local.jsx` — endereço da APCEF, foto e link do mapa
 - `src/components/Lotes.jsx` — cards de ingresso com links do SumUp
 - `src/components/Pagamento.jsx` — chave Pix com botão de copiar + WhatsApp
 - `src/components/Inscricao.jsx` — formulário Tally embutido
@@ -28,6 +29,7 @@ Abre em `http://localhost:5173`.
 - **Lotes/preços/links do SumUp**: `src/components/Lotes.jsx`, array `lotes`
 - **Chave Pix / WhatsApp de comprovante**: `src/components/Pagamento.jsx`, topo do arquivo
 - **Destaques do evento**: `src/components/Highlights.jsx`, array `highlights`
+- **Endereço do evento**: `src/components/Local.jsx`, constante `ENDERECO`
 - **Link do grupo do WhatsApp**: `src/components/Comunidade.jsx`
 
 ## Deploy (GitHub + Vercel)

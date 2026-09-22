@@ -7,6 +7,9 @@ export default function Footer() {
       <p className="mt-2 text-[14.5px] text-haze">
         26 a 29 de novembro · João Pessoa — PB
       </p>
+      <p className="mt-1 text-[14.5px] text-haze">
+        APCEF · Av. João Cirilo da Silva, 3160 — Altiplano Cabo Branco
+      </p>
 
       {/* Links que antes viviam na seção "Entre no clima" da home. */}
       <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center items-center">

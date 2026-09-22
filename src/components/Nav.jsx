@@ -4,6 +4,7 @@ import { Link } from '../router'
 const itens = [
   { label: 'Início', to: '/', path: '/' },
   { label: 'Destaques', to: '/#o-que-te-espera' },
+  { label: 'Local', to: '/#local' },
   { label: 'Lineup', to: '/#lineup' },
   { label: 'Alto Mar', to: '/#alto-mar' },
   { label: 'Ingressos', to: '/inscricao', path: '/inscricao' },
@@ -43,7 +44,7 @@ export default function Nav({ route }) {
           Zouk Jampa
         </Link>
 
-        <div className="hidden min-[900px]:flex items-center justify-center gap-1">
+        <div className="hidden min-[1040px]:flex items-center justify-center gap-1">
           {itens.map((item) => (
             <Link
               key={item.label}
@@ -67,7 +68,7 @@ export default function Nav({ route }) {
             aria-label={aberto ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={aberto}
             onClick={() => setAberto((v) => !v)}
-            className="min-[900px]:hidden w-11 h-11 rounded-xl border border-line bg-night-light text-sand text-lg leading-none hover:bg-night-hover transition-colors"
+            className="min-[1040px]:hidden w-11 h-11 rounded-xl border border-line bg-night-light text-sand text-lg leading-none hover:bg-night-hover transition-colors"
           >
             {aberto ? '✕' : '☰'}
           </button>
@@ -75,7 +76,7 @@ export default function Nav({ route }) {
       </div>
 
       {aberto && (
-        <div className="min-[900px]:hidden border-t border-line bg-night-deep/95 px-4 pt-2.5 pb-4 grid gap-1">
+        <div className="min-[1040px]:hidden border-t border-line bg-night-deep/95 px-4 pt-2.5 pb-4 grid gap-1">
           {itens.map((item) => (
             <Link
               key={item.label}
