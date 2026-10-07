@@ -32,12 +32,13 @@ export const modelos = [
     descricao:
       'A cor nova da linha: marrom lavado, logo Zouk no peito e a paisagem do Cabo Branco nas costas.',
     cor: 'New Wood (marrom)',
-    capa: '/assets/camisas/modelo-04-casal.jpeg',
+    // Sem foto no corpo: a que havia trazia o logo Jampa no peito, e a marrom
+    // leva o Zouk. Quando chegar uma com o logo certo, ela vira a `capa`.
+    capa: '/assets/camisas/modelo-04-frente.jpeg',
     capaCropped: '/assets/camisas/modelo-04-cropped.jpeg',
     imagens: [
       { src: '/assets/camisas/modelo-04-frente.jpeg', legenda: 'Oversized — frente', alt: 'Camisa Zouk New Wood marrom oversized — frente' },
       { src: '/assets/camisas/modelo-04-costas.jpeg', legenda: 'Oversized — costas', alt: 'Camisa Zouk New Wood marrom oversized — costas' },
-      { src: '/assets/camisas/modelo-04-casal.jpeg', legenda: 'Oversized — no corpo', alt: 'Camisa Zouk New Wood marrom oversized vestida, frente e costas' },
       { src: '/assets/camisas/modelo-04-cropped.jpeg', legenda: 'Cropped — frente e costas', alt: 'Camisa Zouk New Wood marrom cropped — frente e costas' },
     ],
   },
