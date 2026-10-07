@@ -1,26 +1,28 @@
 import { useMarquee } from '../hooks/useMarquee'
 import { Link } from '../router'
-import { modelos, vitrineExtras, precos, TECIDO } from '../data/camisas'
+import { emLinha, precos, TECIDO } from '../data/camisas'
 
-// Modelos e fotos extras dividem o mesmo trilho: o card é sempre foto,
-// nome e uma linha de apoio. A página /camisas é quem mostra o resto.
-const cards = [
-  ...modelos.map((modelo) => ({
-    id: modelo.id,
+// Dois cards por cor, uma foto de cada modelagem. É o tamanho que resolve as
+// duas coisas ao mesmo tempo: enche o trilho — abaixo disso o carrossel não
+// duplica a lista e fica parado (ver useMarquee) — sem a repetição de mostrar
+// a mesma peça por quatro ângulos seguidos, que deixava a vitrine longa.
+// Só entra quem está à venda: a cor fora de produção fica no rodapé da /camisas.
+const cards = emLinha.flatMap((modelo) => [
+  {
+    id: `${modelo.id}-oversized`,
     src: modelo.capa,
     titulo: modelo.nome,
-    legenda: modelo.cor,
-    alt: `Camisa ${modelo.nome} vestida, frente e costas`,
-  })),
-  ...vitrineExtras.map((extra) => ({
-    id: extra.id,
-    src: extra.src,
-    titulo: extra.titulo,
-    legenda: extra.legenda,
-    alt: extra.alt,
-    pos: extra.pos,
-  })),
-]
+    legenda: 'Oversized',
+    alt: `Camisa ${modelo.nome} oversized, frente e costas`,
+  },
+  {
+    id: `${modelo.id}-cropped`,
+    src: modelo.capaCropped,
+    titulo: modelo.nome,
+    legenda: 'Cropped',
+    alt: `Camisa ${modelo.nome} cropped, frente e costas`,
+  },
+])
 
 export default function Camisas() {
   const rail = useMarquee()
@@ -55,15 +57,16 @@ export default function Camisas() {
             <figure
               key={`${card.id}-${i}`}
               aria-hidden={i >= cards.length}
-              className="m-0 flex-[0_0_240px]"
+              className="m-0 flex-[0_0_200px]"
             >
-              <div className="aspect-[4/5] rounded-[14px] overflow-hidden border border-line hover:border-coral transition-colors bg-[#0F2E35]">
+              {/* 2:3 é o formato que serve às duas: a foto no corpo não perde
+                  ninguém nas laterais e a cropped cabe com as duas peças. */}
+              <div className="aspect-[2/3] rounded-[14px] overflow-hidden border border-line hover:border-coral transition-colors bg-[#0F2E35]">
                 <img
                   src={card.src}
                   alt={card.alt}
                   loading="lazy"
                   className="block w-full h-full object-cover"
-                  style={{ objectPosition: card.pos || 'center' }}
                 />
               </div>
               <figcaption className="mt-2.5 text-[15px] font-bold text-sand">

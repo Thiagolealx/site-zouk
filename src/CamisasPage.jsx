@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useTallyEmbed } from './hooks/useTallyEmbed'
 import {
   medidas,
-  modelos,
+  emLinha,
+  foraDeLinha,
   precos,
   TECIDO,
   PIX_KEY,
@@ -220,6 +221,50 @@ function FormularioTally() {
   )
 }
 
+// Cor que saiu de produção. Fica no fim da página, menor e dessaturada, com o
+// motivo escrito: quem viu a peça no Instagram e vem procurar merece a
+// resposta, mas nada aqui pode parecer à venda — por isso não há preço nem
+// botão de pedido, só o aviso.
+function ForaDeLinha() {
+  if (!foraDeLinha.length) return null
+
+  return (
+    <section className="px-6 pt-14 pb-4">
+      <div className="max-w-xl mx-auto">
+        <h2 className="font-display text-xl text-sand/60 uppercase tracking-[0.2em] text-center mb-7">
+          Fora de produção
+        </h2>
+
+        {foraDeLinha.map((modelo) => (
+          <div
+            key={modelo.id}
+            id={modelo.id}
+            className="flex gap-5 items-start bg-night-light/40 border border-sand/10 rounded-3xl p-5 scroll-mt-24"
+          >
+            <img
+              src={modelo.capa}
+              alt={`Camisa ${modelo.nome} — cor fora de produção`}
+              loading="lazy"
+              className="w-24 h-32 shrink-0 rounded-2xl object-cover saturate-50 opacity-70"
+            />
+            <div>
+              <span className="inline-block text-[11px] font-bold uppercase tracking-widest text-night bg-sand/70 px-2.5 py-1 rounded-full">
+                Esgotada
+              </span>
+              <h3 className="font-display text-xl text-sand/80 mt-2.5 mb-2">
+                {modelo.nome}
+              </h3>
+              <p className="font-body text-sm text-sand/60 leading-relaxed">
+                {modelo.aviso}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function TabelaMedidas() {
   return (
     <section id="medidas" className="px-6 py-16 scroll-mt-24">
@@ -290,7 +335,7 @@ export default function CamisasPage() {
         </section>
 
         <div className="max-w-5xl mx-auto px-6 space-y-16">
-          {modelos.map((modelo) => (
+          {emLinha.map((modelo) => (
             <div
               key={modelo.id}
               id={modelo.id}
@@ -337,6 +382,8 @@ export default function CamisasPage() {
             </div>
           ))}
         </div>
+
+        <ForaDeLinha />
 
         <TabelaMedidas />
 
