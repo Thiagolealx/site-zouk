@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 const NAV_OFFSET = 84 // altura da nav fixa, para a âncora não ficar por baixo dela
 
-export const ROUTES = ['/', '/inscricao', '/camisas']
+export const ROUTES = ['/', '/inscricao', '/camisas', '/rei-e-rainha', '/votacao']
 
 // A página de ingressos e a de inscrição viraram uma só: o passe e o
 // pagamento agora vivem dentro do formulário. O endereço antigo continua
