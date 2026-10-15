@@ -7,11 +7,11 @@ const API_OFICIAL =
 const API_DEVELOP =
   'https://script.google.com/macros/s/AKfycbz1b6RtqT7ui7SuLMTo7gfjG6egJlscJvaqGnjZHXvmUq9yN-pCkbDsdjFHzg0s8HF3Iw/exec'
 
-// No computador (npm run dev) e na preview do branch develop na Vercel, o
-// site fala com a implantação Develop; no site oficial, com a oficial.
-const host = typeof window === 'undefined' ? '' : window.location.hostname
-const emTeste = host === 'localhost' || host === '127.0.0.1' || host.includes('-git-develop-')
-export const API_URL = emTeste ? API_DEVELOP : API_OFICIAL
+// Com o develop em pausa (e a implantação Develop fora do ar), computador,
+// preview e site oficial falam todos com a implantação oficial. Para voltar
+// a testar versões novas na Develop, troque API_OFICIAL por API_DEVELOP
+// quando o host for localhost ou contiver '-git-develop-'.
+export const API_URL = API_OFICIAL
 
 export const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
   'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
