@@ -1,17 +1,8 @@
-// Links do App da Web do Apps Script (apps-script/Codigo.gs), publicado a
-// partir da planilha "Rei e Rainha - Planilha Principal" no Drive. São duas
-// implantações do mesmo script: "Sem título" (oficial) e "Develop", que
-// recebe as versões novas primeiro. As duas gravam na MESMA planilha.
-const API_OFICIAL =
+// Link do App da Web do Apps Script (apps-script/Codigo.gs), publicado a
+// partir da planilha "Rei e Rainha - Planilha Principal" no Drive.
+// Computador e site oficial usam o mesmo link.
+export const API_URL =
   'https://script.google.com/macros/s/AKfycbzX4fLMdoWqwwqF-ACDRRWOmvzDrFTa8xLkaH5d-IaUyzPyBOvVYAmZY0uDeuBCbrNCcQ/exec'
-const API_DEVELOP =
-  'https://script.google.com/macros/s/AKfycbz1b6RtqT7ui7SuLMTo7gfjG6egJlscJvaqGnjZHXvmUq9yN-pCkbDsdjFHzg0s8HF3Iw/exec'
-
-// Com o develop em pausa (e a implantação Develop fora do ar), computador,
-// preview e site oficial falam todos com a implantação oficial. Para voltar
-// a testar versões novas na Develop, troque API_OFICIAL por API_DEVELOP
-// quando o host for localhost ou contiver '-git-develop-'.
-export const API_URL = API_OFICIAL
 
 export const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
   'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
