@@ -26,12 +26,18 @@ Versão: Nova versão**. Assim o link continua o mesmo.
 ## Usar no dia a dia
 
 - **Config**: `inscricoes_abertas` e `votacao_aberta` (SIM/NAO);
-  `inscricoes_ate` (dd/mm/aaaa, vazio = sem prazo).
+  `inscricoes_ate` (dd/mm/aaaa, vazio = sem prazo);
+  `mostrar_no_menu` (SIM/NAO): se a aba "Rei & Rainha" aparece no menu do
+  site. Com `NAO` (ou sem essa linha) ela some do menu, mas as páginas
+  continuam abrindo pelo link direto (`/rei-e-rainha` e `/votacao`), para
+  você mandar só para quem quiser. O menu do site pode levar até 5 minutos
+  para refletir a mudança em quem já tinha aberto o site.
 - **Candidatos**: quem se inscreve já entra com `SIM` e aparece na votação.
   Para tirar alguém da cédula, troque para `NAO`.
 - **Eleitores**: menu **Rei e Rainha → 🔑 Gerar IDs** cria os códigos
   (ZJ-XXXXXX) com o CPF em branco. Entregue um ID por pessoa; quando ela vota,
   o CPF e a hora (`votou_em`) entram na linha. Um ID vale para um CPF só. Dá
   também para colar CPF + ID vindos do sistema: aí só aquele CPF usa o ID.
-- **Menu Rei e Rainha**: abrir/fechar votação e inscrições sem editar célula.
+- **Menu Rei e Rainha**: abrir/fechar votação e inscrições, mostrar/esconder
+  a aba no menu do site, sem editar célula.
 - **Resultado**: contagem automática. Não aparece no site.

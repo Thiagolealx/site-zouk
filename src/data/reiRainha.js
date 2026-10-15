@@ -64,13 +64,21 @@ export function statusGuardado() {
   }
 }
 
-export async function buscarStatus() {
+// Menu e página pedem o status ao mesmo tempo: um pedido só serve os dois.
+let pedindo = null
+
+export function buscarStatus() {
+  pedindo ||= pedirStatus().finally(() => { pedindo = null })
+  return pedindo
+}
+
+async function pedirStatus() {
   let erro
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     try {
       const st = await comPrazo(`${API_URL}?acao=status`, {}, 12000)
       try {
-        localStorage.setItem(CHAVE_STATUS, JSON.stringify(st))
+        localStorage.setItem(CHAVE_STATUS, JSON.stringify({ ...st, vistoEm: Date.now() }))
       } catch {
         // Sem armazenamento (aba anônima): só não guarda.
       }
@@ -80,6 +88,17 @@ export async function buscarStatus() {
     }
   }
   throw erro
+}
+
+/**
+ * A aba "Rei & Rainha" aparece no menu? Quem manda é `mostrar_no_menu` na
+ * planilha. O menu está em todas as páginas: para não encher o Apps Script
+ * de pedidos (e atrasar os votos), só pergunta de novo a cada 5 minutos.
+ */
+export async function mostrarNoMenu() {
+  const guardado = statusGuardado()
+  if (guardado && Date.now() - (guardado.vistoEm || 0) < 5 * 60 * 1000) return !!guardado.mostrarNoMenu
+  return !!(await buscarStatus()).mostrarNoMenu
 }
 
 // Sem Content-Type de propósito: vai como text/plain, que o navegador manda

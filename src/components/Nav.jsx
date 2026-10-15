@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from '../router'
+import { API_URL, statusGuardado, mostrarNoMenu } from '../data/reiRainha'
 
-const itens = [
+const ITENS = [
   { label: 'Início', to: '/', path: '/' },
   { label: 'Destaques', to: '/#o-que-te-espera' },
   { label: 'Local', to: '/#local' },
@@ -9,12 +10,19 @@ const itens = [
   { label: 'Alto Mar', to: '/#alto-mar' },
   { label: 'Ingressos', to: '/inscricao', path: '/inscricao' },
   { label: 'Camisas', to: '/camisas', path: '/camisas' },
-  { label: 'Rei & Rainha', to: '/rei-e-rainha', path: '/rei-e-rainha' },
 ]
+
+// Só entra no menu quando a planilha manda (mostrar_no_menu = SIM).
+const REI_RAINHA = { label: 'Rei & Rainha', to: '/rei-e-rainha', path: '/rei-e-rainha' }
 
 export default function Nav({ route }) {
   const [scrolled, setScrolled] = useState(false)
   const [aberto, setAberto] = useState(false)
+  const [comReiRainha, setComReiRainha] = useState(() => !!(API_URL && statusGuardado()?.mostrarNoMenu))
+
+  useEffect(() => {
+    if (API_URL) mostrarNoMenu().then(setComReiRainha).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -25,6 +33,8 @@ export default function Nav({ route }) {
 
   // Trocou de rota pelo menu: fecha o painel.
   useEffect(() => setAberto(false), [route])
+
+  const itens = comReiRainha ? [...ITENS, REI_RAINHA] : ITENS
 
   const estiloItem = (item) =>
     item.path === route

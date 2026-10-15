@@ -36,11 +36,12 @@ function configurar() {
 
   const config = ss.getSheetByName('Config') || ss.insertSheet('Config')
   if (!config.getRange('A1').getValue()) {
-    config.getRange(1, 1, 4, 3).setValues([
+    config.getRange(1, 1, 5, 3).setValues([
       ['chave', 'valor', 'explicacao'],
       ['inscricoes_abertas', 'SIM', 'SIM ou NAO'],
       ['inscricoes_ate', '', 'Data limite (dd/mm/aaaa). Vazio = sem limite'],
       ['votacao_aberta', 'NAO', 'SIM ou NAO'],
+      ['mostrar_no_menu', 'NAO', 'SIM = aba "Rei & Rainha" no menu do site. NAO = só quem tem o link'],
     ])
     config.getRange('A1:C1').setFontWeight('bold')
   }
@@ -122,6 +123,9 @@ function onOpen() {
     .addItem('▶ Abrir inscrições', 'abrirInscricoes')
     .addItem('■ Fechar inscrições', 'fecharInscricoes')
     .addSeparator()
+    .addItem('👁 Mostrar no menu do site', 'mostrarNoMenu')
+    .addItem('🙈 Esconder do menu do site', 'esconderDoMenu')
+    .addSeparator()
     .addItem('🔑 Gerar IDs que faltam', 'gerarIds')
     .addItem('Atualizar resultado', 'atualizarResultado')
     .addToUi()
@@ -132,6 +136,8 @@ function abrirVotacao() { mudarConfig('votacao_aberta', 'SIM', 'Votação aberta
 function fecharVotacao() { mudarConfig('votacao_aberta', 'NAO', 'Votação fechada.') }
 function abrirInscricoes() { mudarConfig('inscricoes_abertas', 'SIM', 'Inscrições abertas.') }
 function fecharInscricoes() { mudarConfig('inscricoes_abertas', 'NAO', 'Inscrições fechadas.') }
+function mostrarNoMenu() { mudarConfig('mostrar_no_menu', 'SIM', 'Aba "Rei & Rainha" aparece no menu do site.') }
+function esconderDoMenu() { mudarConfig('mostrar_no_menu', 'NAO', 'Aba "Rei & Rainha" escondida do menu do site.') }
 
 // Sem O/0, I/1/L: o ID é digitado no celular e não pode dar margem a erro.
 const ALFABETO_ID = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -206,6 +212,8 @@ function status() {
     ok: true,
     inscricoesAbertas: inscricoesAbertas(config),
     votacaoAberta: sim(config.votacao_aberta),
+    // Sem a linha na Config fica escondido: só divulga quando você mandar.
+    mostrarNoMenu: sim(config.mostrar_no_menu),
     candidatos: candidatosAprovados(),
   }
   cache.put('status', JSON.stringify(st), CACHE_SEGUNDOS)

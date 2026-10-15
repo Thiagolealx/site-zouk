@@ -138,7 +138,7 @@ export function criarBackend(semente = {}) {
 }
 
 /** Planilha pronta para testar: config, candidatos aprovados e IDs livres. */
-export function sementePadrao({ inscricoes = 'SIM', votacao = 'SIM', ids = [], candidatos = [] } = {}) {
+export function sementePadrao({ inscricoes = 'SIM', votacao = 'SIM', menu = 'SIM', ids = [], candidatos = [] } = {}) {
   return {
     abas: {
       Config: [
@@ -146,6 +146,7 @@ export function sementePadrao({ inscricoes = 'SIM', votacao = 'SIM', ids = [], c
         ['inscricoes_abertas', inscricoes, ''],
         ['inscricoes_ate', '', ''],
         ['votacao_aberta', votacao, ''],
+        ['mostrar_no_menu', menu, ''],
       ],
       Candidatos: [
         ['id', 'data_inscricao', 'nome', 'sobrenome', 'cpf', 'estado', 'categoria', 'foto_url', 'aprovado'],
