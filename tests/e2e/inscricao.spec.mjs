@@ -13,7 +13,7 @@ async function preencher(page, { nome = 'Maria', sobrenome = 'Silva', cpf, estad
   await expect(page.getByAltText('Sua foto')).toBeVisible()
 }
 
-test('candidatura completa cai na planilha como PENDENTE, com o CPF intacto', async ({ page }) => {
+test('candidatura completa cai na planilha já aprovada, com o CPF intacto', async ({ page }) => {
   const { backend } = await ligarBackend(page, sementePadrao({ votacao: 'NAO' }))
   await page.goto('/rei-e-rainha')
 
@@ -24,7 +24,7 @@ test('candidatura completa cai na planilha como PENDENTE, com o CPF intacto', as
   await expect(page.getByText('Candidatura enviada')).toBeVisible()
 
   const [linha] = backend.linhas('Candidatos')
-  expect(linha).toMatchObject({ nome: 'Maria', sobrenome: 'Silva', estado: 'PB', categoria: 'rainha', aprovado: 'PENDENTE' })
+  expect(linha).toMatchObject({ nome: 'Maria', sobrenome: 'Silva', estado: 'PB', categoria: 'rainha', aprovado: 'SIM' })
   expect(String(linha.cpf)).toBe(cpf)
   expect(backend.arquivos.size).toBe(1)
 
@@ -86,4 +86,15 @@ test('inscrições fechadas escondem o formulário', async ({ page }) => {
   await page.goto('/rei-e-rainha')
   await expect(page.getByText('As inscrições estão encerradas.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Enviar candidatura' })).toHaveCount(0)
+})
+
+test('quem acabou de se candidatar já aparece na cédula', async ({ page }) => {
+  await ligarBackend(page, sementePadrao({ ids: ['ZJ-AAAA22'] }))
+  await page.goto('/rei-e-rainha')
+  await preencher(page, { nome: 'Lia', sobrenome: 'Nova', cpf: gerarCpf() })
+  await page.getByRole('button', { name: 'Enviar candidatura' }).click()
+  await expect(page.getByText('Candidatura enviada')).toBeVisible()
+
+  await page.goto('/votacao')
+  await expect(page.getByRole('button', { name: /Lia Nova/ })).toBeVisible()
 })

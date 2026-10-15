@@ -27,7 +27,8 @@ Versão: Nova versão**. Assim o link continua o mesmo.
 
 - **Config**: `inscricoes_abertas` e `votacao_aberta` (SIM/NAO);
   `inscricoes_ate` (dd/mm/aaaa, vazio = sem prazo).
-- **Candidatos**: troque `PENDENTE` por `SIM` para aparecer na votação.
+- **Candidatos**: quem se inscreve já entra com `SIM` e aparece na votação.
+  Para tirar alguém da cédula, troque para `NAO`.
 - **Eleitores**: menu **Rei e Rainha → 🔑 Gerar IDs** cria os códigos
   (ZJ-XXXXXX) com o CPF em branco. Entregue um ID por pessoa; quando ela vota,
   o CPF e a hora (`votou_em`) entram na linha. Um ID vale para um CPF só. Dá

@@ -87,7 +87,7 @@ test('resposta perdida no voto (4G fraco): site reenvia, mostra sucesso e não d
   expect(backend.linhas('Votos')).toHaveLength(1)
 })
 
-test('candidato pendente não aparece na cédula', async ({ page }) => {
+test('candidato tirado da cédula (NAO/PENDENTE) não aparece', async ({ page }) => {
   await ligarBackend(page, sementePadrao({
     ids: IDS,
     candidatos: [...CANDIDATOS, { id: 'R9', nome: 'Pendente', sobrenome: 'Silva', categoria: 'rei', aprovado: 'PENDENTE' }],

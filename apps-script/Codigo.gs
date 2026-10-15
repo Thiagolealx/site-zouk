@@ -7,7 +7,7 @@
  * monta as abas e as pastas.
  *
  * GET  ?acao=status      → o que está aberto + candidatos aprovados
- * POST {acao:'inscrever'} → nova candidatura (fica pendente de aprovação)
+ * POST {acao:'inscrever'} → nova candidatura (já entra aprovada na cédula)
  * POST {acao:'votar'}     → um voto por CPF + ID do congresso
  */
 
@@ -289,7 +289,12 @@ function inscrever(d) {
 
   // O apóstrofo segura o CPF como texto: sem ele o Sheets vira número e
   // come o zero da frente.
-  aba.appendRow([id, new Date(), nome, sobrenome, "'" + cpf, estado, categoria, fotoUrl, 'PENDENTE'])
+  // Entra aprovada: aparece na votação na hora. Para tirar alguém da cédula,
+  // troque SIM por NAO na coluna aprovado.
+  aba.appendRow([id, new Date(), nome, sobrenome, "'" + cpf, estado, categoria, fotoUrl, 'SIM'])
+  // Escrita do script não dispara onEdit: limpa o cache aqui para a nova
+  // candidatura não esperar os 20 s.
+  limparCache()
   return { ok: true }
 }
 

@@ -68,8 +68,7 @@ function Formulario() {
       <Aviso>
         <p className="font-display text-3xl uppercase text-sand">Candidatura enviada 👑</p>
         <p className="mt-3">
-          Agora a organização confere os dados e a foto. Depois de aprovada, sua candidatura
-          aparece na votação.
+          Sua candidatura já aparece na votação. Boa sorte!
         </p>
       </Aviso>
     )
