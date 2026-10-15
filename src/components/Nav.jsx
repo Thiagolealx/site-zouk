@@ -9,6 +9,7 @@ const itens = [
   { label: 'Alto Mar', to: '/#alto-mar' },
   { label: 'Ingressos', to: '/inscricao', path: '/inscricao' },
   { label: 'Camisas', to: '/camisas', path: '/camisas' },
+  { label: 'Rei & Rainha', to: '/rei-e-rainha', path: '/rei-e-rainha' },
 ]
 
 export default function Nav({ route }) {
