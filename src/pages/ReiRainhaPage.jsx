@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { API_URL, UFS, buscarStatus, enviar, mascaraCpf, cpfValido, reduzirFoto } from '../data/reiRainha'
+import { API_URL, UFS, buscarStatus, statusGuardado, enviar, mascaraCpf, cpfValido, reduzirFoto } from '../data/reiRainha'
 
 export const campo =
   'w-full px-4 py-3.5 rounded-xl bg-night border border-line text-sand placeholder:text-haze/70 focus:outline-none focus:border-sun-yellow transition-colors'
@@ -176,7 +176,8 @@ function Formulario() {
 }
 
 export default function ReiRainhaPage() {
-  const [status, setStatus] = useState(null)
+  // Abre com o último status visto neste aparelho e atualiza por trás.
+  const [status, setStatus] = useState(() => (API_URL ? statusGuardado() : null))
   const [falhou, setFalhou] = useState(false)
 
   useEffect(() => {
@@ -186,7 +187,7 @@ export default function ReiRainhaPage() {
 
   let conteudo
   if (!API_URL) conteudo = <Aviso>As inscrições abrem em breve. Fique de olho no nosso Instagram!</Aviso>
-  else if (falhou) conteudo = <Aviso>Não conseguimos carregar agora. Recarregue a página.</Aviso>
+  else if (falhou && !status) conteudo = <Aviso>Não conseguimos carregar agora. Recarregue a página.</Aviso>
   else if (!status) conteudo = <Aviso>Carregando…</Aviso>
   else if (!status.inscricoesAbertas)
     conteudo = <Aviso>As inscrições estão encerradas.</Aviso>

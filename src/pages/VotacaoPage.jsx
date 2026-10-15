@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { API_URL, buscarStatus, enviar, mascaraCpf, cpfValido } from '../data/reiRainha'
+import { API_URL, buscarStatus, statusGuardado, enviar, mascaraCpf, cpfValido } from '../data/reiRainha'
 import { Aviso, Cabecalho, campo, rotulo } from './ReiRainhaPage'
 
 function Grade({ titulo, candidatos, escolhido, escolher }) {
@@ -137,7 +137,8 @@ function Cedula({ candidatos }) {
 }
 
 export default function VotacaoPage() {
-  const [status, setStatus] = useState(null)
+  // Abre com o último status visto neste aparelho e atualiza por trás.
+  const [status, setStatus] = useState(() => (API_URL ? statusGuardado() : null))
   const [falhou, setFalhou] = useState(false)
 
   useEffect(() => {
@@ -147,7 +148,7 @@ export default function VotacaoPage() {
 
   let conteudo
   if (!API_URL) conteudo = <Aviso>A votação abre em breve.</Aviso>
-  else if (falhou) conteudo = <Aviso>Não conseguimos carregar agora. Recarregue a página.</Aviso>
+  else if (falhou && !status) conteudo = <Aviso>Não conseguimos carregar agora. Recarregue a página.</Aviso>
   else if (!status) conteudo = <Aviso>Carregando…</Aviso>
   else if (!status.votacaoAberta)
     conteudo = (

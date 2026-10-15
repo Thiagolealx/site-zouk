@@ -93,9 +93,9 @@ function configurar() {
  * exemplo). Contagem feita aqui e não por fórmula: QUERY quebra conforme o
  * idioma da planilha.
  */
-function atualizarResultado() {
+function atualizarResultado(jaLidos) {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const votos = linhasComo(aba_('Votos'))
+  const votos = Array.isArray(jaLidos) ? jaLidos : linhasComo(aba_('Votos'))
   const contar = (coluna) => {
     const n = {}
     votos.forEach((v) => { if (v[coluna]) n[v[coluna]] = (n[v[coluna]] || 0) + 1 })
@@ -174,6 +174,7 @@ function mudarConfig(chave, valor, aviso) {
   const i = linhas.findIndex((l) => String(l[0]).trim() === chave)
   if (i < 0) aba.appendRow([chave, valor])
   else aba.getRange(i + 1, 2).setValue(valor)
+  limparCache()
   SpreadsheetApp.getActive().toast(aviso, 'Rei e Rainha')
 }
 
@@ -186,14 +187,38 @@ function pastaFotos() {
 function doGet(e) {
   const acao = (e && e.parameter && e.parameter.acao) || 'status'
   if (acao !== 'status') return responder({ ok: false, erro: 'Ação desconhecida.' })
+  const st = status()
+  return responder({ ...st, candidatos: st.votacaoAberta ? st.candidatos : [] })
+}
+
+// ------------------------------------------------------------------- cache
+// Cada visita lia Config e Candidatos inteiros (~2 s no Google). O status
+// fica guardado alguns segundos; qualquer edição na planilha (onEdit) ou
+// botão do menu limpa na hora, então aprovar/abrir/fechar vale imediatamente.
+const CACHE_SEGUNDOS = 20
+
+function status() {
+  const cache = CacheService.getScriptCache()
+  const guardado = cache.get('status')
+  if (guardado) return JSON.parse(guardado)
   const config = lerConfig()
-  const votacaoAberta = sim(config.votacao_aberta)
-  return responder({
+  const st = {
     ok: true,
     inscricoesAbertas: inscricoesAbertas(config),
-    votacaoAberta,
-    candidatos: votacaoAberta ? candidatosAprovados() : [],
-  })
+    votacaoAberta: sim(config.votacao_aberta),
+    candidatos: candidatosAprovados(),
+  }
+  cache.put('status', JSON.stringify(st), CACHE_SEGUNDOS)
+  return st
+}
+
+function limparCache() {
+  CacheService.getScriptCache().remove('status')
+}
+
+// Gatilho simples do Sheets: roda sozinho quando alguém edita uma célula à mão.
+function onEdit() {
+  limparCache()
 }
 
 function doPost(e) {
@@ -207,7 +232,7 @@ function doPost(e) {
   // Uma escrita por vez: sem isso, dois votos do mesmo CPF chegando juntos
   // passariam os dois pela checagem de duplicidade.
   const lock = LockService.getScriptLock()
-  if (!lock.tryLock(20000)) {
+  if (!lock.tryLock(25000)) {
     return responder({ ok: false, erro: 'Muita gente ao mesmo tempo. Tente de novo em alguns segundos.' })
   }
   try {
@@ -271,7 +296,8 @@ function inscrever(d) {
 // ------------------------------------------------------------------ votação
 
 function votar(d) {
-  if (!sim(lerConfig().votacao_aberta)) return { ok: false, erro: 'A votação não está aberta.' }
+  const st = status()
+  if (!st.votacaoAberta) return { ok: false, erro: 'A votação não está aberta.' }
 
   const cpf = soDigitos(d.cpf)
   const idInscricao = String(d.id || '').trim().toUpperCase()
@@ -291,14 +317,15 @@ function votar(d) {
   const cpfDaLinha = soDigitos(valores[n][iCpf]) ? cpfDaCelula(valores[n][iCpf]) : ''
   if (cpfDaLinha && cpfDaLinha !== cpf) return { ok: false, erro: 'Este ID já foi usado por outro CPF.' }
 
-  const aprovados = candidatosAprovados()
+  const aprovados = st.candidatos
   const rei = aprovados.find((c) => c.id === d.rei && c.categoria === 'rei')
   const rainha = aprovados.find((c) => c.id === d.rainha && c.categoria === 'rainha')
   const rotulo = (c) => `${c.nome} ${c.sobrenome} (${c.id})`
 
   const hash = hashCpf(cpf)
   const votos = aba_('Votos')
-  const anterior = linhasComo(votos).find((l) => l.cpf_hash === hash)
+  const linhasVotos = linhasComo(votos)
+  const anterior = linhasVotos.find((l) => l.cpf_hash === hash)
   if (anterior) {
     // O mesmo voto chegando de novo é o site repetindo o envio porque a
     // resposta do primeiro se perdeu (4G fraco): confirma sem gravar.
@@ -314,8 +341,12 @@ function votar(d) {
   const agora = new Date()
   if (!cpfDaLinha) eleitores.getRange(n + 1, iCpf + 1).setValue("'" + cpf)
   if (iVotou >= 0) eleitores.getRange(n + 1, iVotou + 1).setValue(agora)
-  votos.appendRow([agora, hash, idInscricao, rotulo(rei), rotulo(rainha)])
-  atualizarResultado()
+  const novo = [agora, hash, idInscricao, rotulo(rei), rotulo(rainha)]
+  votos.appendRow(novo)
+  // Recontagem com o que já foi lido acima: sem reler a aba Votos inteira
+  // enquanto segura a trava (é o que deixa a fila de votos andar).
+  linhasVotos.push({ voto_rei: novo[3], voto_rainha: novo[4] })
+  atualizarResultado(linhasVotos)
   return { ok: true }
 }
 
