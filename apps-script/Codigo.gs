@@ -11,6 +11,10 @@
  * POST {acao:'votar'}     → um voto por CPF + ID do congresso
  */
 
+// Aparece em ?acao=status: mostra qual versão do código está publicada.
+// Troque a cada mudança no script.
+const VERSAO_CODIGO = '2026-10-15.2'
+
 const NOME_PASTA = 'Rei e Rainha do Baile - Zouk Jampa 2026'
 const NOME_PLANILHA = 'Rei e Rainha - Planilha Principal'
 
@@ -194,7 +198,7 @@ function doGet(e) {
   const acao = (e && e.parameter && e.parameter.acao) || 'status'
   if (acao !== 'status') return responder({ ok: false, erro: 'Ação desconhecida.' })
   const st = status()
-  return responder({ ...st, candidatos: st.votacaoAberta ? st.candidatos : [] })
+  return responder({ ...st, versao: VERSAO_CODIGO, candidatos: st.votacaoAberta ? st.candidatos : [] })
 }
 
 // ------------------------------------------------------------------- cache
