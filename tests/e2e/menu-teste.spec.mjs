@@ -50,7 +50,10 @@ test('envios simultâneos: reserva barra mesmo CPF em 2 IDs e mesmo ID com 2 CPF
     const aba = b.abas[nome]
     const { appendRow, getRange } = aba
     aba.appendRow = (l) => depois.push(() => appendRow(l))
-    aba.getRange = (...a) => ({ setValue: (v) => depois.push(() => getRange(...a).setValue(v)) })
+    aba.getRange = (...a) => ({
+      setValue: (v) => depois.push(() => getRange(...a).setValue(v)),
+      setValues: (v) => depois.push(() => getRange(...a).setValues(v)),
+    })
   }
   const votar = (cpf, id) => b.atender('POST', { corpo: JSON.stringify({ acao: 'votar', cpf, id, rei: 'R1', rainha: 'Q1' }) })
 
@@ -59,11 +62,13 @@ test('envios simultâneos: reserva barra mesmo CPF em 2 IDs e mesmo ID com 2 CPF
   const r2 = votar(cpf, 'ZJ-BBBB33')        // mesmo CPF, outro ID
   const r3 = votar(gerarCpf(), 'ZJ-AAAA22') // mesmo ID, outro CPF
   const r4 = votar(cpf, 'ZJ-AAAA22')        // reenvio do mesmo voto
+  const r5 = votar(gerarCpf(), 'ZJ-BBBB33') // outra pessoa, junto: linha própria
   depois.forEach((f) => f())
 
   expect(r1.ok).toBe(true)
   expect(r2.erro).toBe('Este CPF já votou. Cada pessoa vota uma vez só.')
   expect(r3.erro).toBe('Este ID já foi usado por outro CPF.')
   expect(r4.ok).toBe(true)
-  expect(b.linhas('Votos')).toHaveLength(1)
+  expect(r5.ok).toBe(true)
+  expect(b.linhas('Votos').map((v) => v.id_inscricao)).toEqual(['ZJ-AAAA22', 'ZJ-BBBB33'])
 })

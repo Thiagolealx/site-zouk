@@ -13,7 +13,7 @@
 
 // Aparece em ?acao=status: mostra qual versão do código está publicada.
 // Troque a cada mudança no script.
-const VERSAO_CODIGO = '2026-10-20.2'
+const VERSAO_CODIGO = '2026-10-20.3'
 
 const NOME_PASTA = 'Rei e Rainha do Baile - Zouk Jampa 2026'
 const NOME_PLANILHA = 'Rei e Rainha - Planilha Principal'
@@ -100,7 +100,8 @@ function configurar() {
  */
 function atualizarResultado() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const votos = linhasComo(aba_('Votos'))
+  // Linha em branco no meio (voto apagado à mão) não conta.
+  const votos = linhasComo(aba_('Votos')).filter((v) => v.cpf_hash)
   const contar = (coluna) => {
     const n = {}
     votos.forEach((v) => { if (v[coluna]) n[v[coluna]] = (n[v[coluna]] || 0) + 1 })
@@ -213,6 +214,7 @@ function criarIdsDeTeste() {
 
 function apagarTeste() {
   const n = apagarLinhasDeTeste('Votos')
+  PropertiesService.getScriptProperties().deleteProperty('linhaVotos')
   apagarLinhasDeTeste('Eleitores')
   atualizarResultado()
   limparCache()
@@ -453,13 +455,16 @@ function votar(d) {
   // Até aqui só leitura, cada um no seu tempo. Na fila fica só a reserva do
   // CPF e do ID (décimos de segundo), para dois envios simultâneos não
   // passarem os dois. A gravação na planilha vem depois, fora da fila.
-  const reserva = naFila(() => reservar(hash, idInscricao, voto), 20000)
+  const reserva = naFila(() => reservar(hash, idInscricao, voto, votos), 20000)
   if (!reserva.ok || reserva.jaGravando) return reserva.ok ? { ok: true } : reserva
 
   const agora = new Date()
   if (!cpfDaLinha) eleitores.getRange(n + 1, iCpf + 1).setValue("'" + cpf)
   if (iVotou >= 0) eleitores.getRange(n + 1, iVotou + 1).setValue(agora)
-  votos.appendRow([agora, hash, idInscricao, rotulo(rei), rotulo(rainha)])
+  // Linha reservada na fila, e não appendRow: dois appendRow ao mesmo tempo
+  // às vezes caem na mesma linha e um voto apaga o outro (aconteceu no
+  // teste com 100 pessoas no mesmo segundo).
+  votos.getRange(reserva.linha, 1, 1, 5).setValues([[agora, hash, idInscricao, rotulo(rei), rotulo(rainha)]])
   return { ok: true }
 }
 
@@ -468,7 +473,7 @@ function votar(d) {
 // pessoa pode votar de novo).
 const RESERVA_MS = 2 * 60 * 1000
 
-function reservar(hash, id, voto) {
+function reservar(hash, id, voto, votos) {
   const props = PropertiesService.getScriptProperties()
   const agora = Date.now()
   const ler = (chave) => {
@@ -487,12 +492,16 @@ function reservar(hash, id, voto) {
   }
   const doId = ler('id:' + id)
   if (doId && doId.hash !== hash) return { ok: false, erro: 'Este ID já foi usado por outro CPF.' }
+  // Próxima linha livre da aba Votos: a contada aqui ou a última da
+  // planilha, o que for maior (alguém pode ter colado linhas à mão).
+  const linha = Math.max(Number(props.getProperty('linhaVotos')) || 0, votos.getLastRow()) + 1
   props.setProperties({
     ['voto:' + hash]: JSON.stringify({ id, voto, em: agora }),
     ['id:' + id]: JSON.stringify({ hash, em: agora }),
+    linhaVotos: String(linha),
   })
   limparReservasVelhas(props, agora)
-  return { ok: true }
+  return { ok: true, linha }
 }
 
 // De vez em quando tira as reservas vencidas, para não acumular.
