@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:carga": "node tests/carga/simulacao.mjs 3000 300",
-    "test:google": "node tests/carga/google.mjs leitura"
+    "test:google": "node tests/carga/google.mjs leitura",
+    "test:real": "node tests/carga/real.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

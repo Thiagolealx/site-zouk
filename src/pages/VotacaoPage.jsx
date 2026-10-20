@@ -1,6 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { API_URL, buscarStatus, statusGuardado, enviar, mascaraCpf, cpfValido } from '../data/reiRainha'
 import { Aviso, Cabecalho, campo, rotulo } from './ReiRainhaPage'
+
+// No teste com 20 celulares ao mesmo tempo, 2 de 200 fotos do Drive ficaram
+// travadas sem nunca carregar. Se a foto der erro ou passar de 8 s sem
+// chegar, pede de novo (até 3 vezes), com outro endereço para não reusar o
+// pedido travado.
+function Foto({ src, alt }) {
+  const [tentativa, setTentativa] = useState(0)
+  const [carregou, setCarregou] = useState(false)
+  const [visivel, setVisivel] = useState(false)
+  const ref = useRef(null)
+
+  // Só conta o prazo quando a foto entra na tela (ela é lazy).
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') return setVisivel(true)
+    const obs = new IntersectionObserver(([e]) => e.isIntersecting && setVisivel(true), { rootMargin: '200px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!visivel || carregou || tentativa >= 3) return
+    const t = setTimeout(() => setTentativa((n) => n + 1), 8000)
+    return () => clearTimeout(t)
+  }, [visivel, carregou, tentativa])
+
+  return (
+    <img
+      ref={ref}
+      src={tentativa ? `${src}${src.includes('?') ? '&' : '?'}t=${tentativa}` : src}
+      alt={alt}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onLoad={() => setCarregou(true)}
+      onError={() => setTentativa((n) => (n < 3 ? n + 1 : n))}
+      className="w-full h-full object-cover"
+    />
+  )
+}
 
 function Grade({ titulo, candidatos, escolhido, escolher }) {
   return (
@@ -23,13 +62,7 @@ function Grade({ titulo, candidatos, escolhido, escolher }) {
                 }`}
               >
                 <div className="relative aspect-[4/5] bg-night">
-                  <img
-                    src={c.foto}
-                    alt={`${c.nome} ${c.sobrenome}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
+                  <Foto src={c.foto} alt={`${c.nome} ${c.sobrenome}`} />
                   {ativo && (
                     <span className="absolute top-2.5 right-2.5 px-3 py-1 rounded-full text-xs font-bold text-night bg-sunset-gradient">
                       Seu voto ✓

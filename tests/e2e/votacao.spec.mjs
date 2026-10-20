@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { ligarBackend, sementePadrao, gerarCpf, CANDIDATOS } from './apoio.mjs'
+import { ligarBackend, sementePadrao, gerarCpf, png, CANDIDATOS } from './apoio.mjs'
 
 const IDS = ['ZJ-AAAA22', 'ZJ-BBBB33', 'ZJ-CCCC44']
 const semente = (extra = {}) => sementePadrao({ ids: IDS, candidatos: CANDIDATOS, ...extra })
@@ -110,4 +110,21 @@ test('com a votação aberta, a página de candidatura leva para a votação', a
   await page.getByRole('link', { name: 'Votar agora' }).click()
   await expect(page).toHaveURL(/\/votacao$/)
   await expect(page.getByRole('button', { name: 'Confirmar voto' })).toBeVisible()
+})
+
+test('foto do Drive que falha na primeira vez: o site pede de novo e ela aparece', async ({ page }) => {
+  await ligarBackend(page, semente())
+  const pedidos = {}
+  // Registrada depois, tem prioridade sobre a rota de fotos do apoio.
+  await page.route('https://drive.google.com/thumbnail**', (route) => {
+    const id = new URL(route.request().url()).searchParams.get('id')
+    pedidos[id] = (pedidos[id] || 0) + 1
+    if (pedidos[id] === 1) return route.abort('connectionreset')
+    return route.fulfill({ contentType: 'image/png', body: png(80, 100, [251, 106, 85]) })
+  })
+  await page.goto('/votacao')
+  const fotos = page.locator('button[aria-pressed] img')
+  await expect(fotos).toHaveCount(4)
+  for (let i = 0; i < 4; i++) await fotos.nth(i).scrollIntoViewIfNeeded()
+  await expect.poll(() => fotos.evaluateAll((imgs) => imgs.filter((i) => i.naturalWidth > 0).length)).toBe(4)
 })
