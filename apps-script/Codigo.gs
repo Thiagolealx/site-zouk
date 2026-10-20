@@ -13,7 +13,7 @@
 
 // Aparece em ?acao=status: mostra qual versão do código está publicada.
 // Troque a cada mudança no script.
-const VERSAO_CODIGO = '2026-10-20.3'
+const VERSAO_CODIGO = '2026-10-20.4'
 
 const NOME_PASTA = 'Rei e Rainha do Baile - Zouk Jampa 2026'
 const NOME_PLANILHA = 'Rei e Rainha - Planilha Principal'
@@ -312,8 +312,11 @@ function doPost(e) {
     if (dados.acao === 'inscrever') return responder(naFila(() => inscrever(dados), 25000))
     return responder({ ok: false, erro: 'Ação desconhecida.' })
   } catch (err) {
+    // Com muita gente junto o Google às vezes recusa acessar a planilha
+    // ("muitas chamadas simultâneas"). Nada ficou gravado pela metade: o
+    // site pode tentar de novo sozinho (ocupado).
     console.error(err)
-    return responder({ ok: false, erro: 'Erro inesperado. Tente de novo.' })
+    return responder({ ok: false, ocupado: true, erro: 'Erro inesperado. Tente de novo.', detalhe: String(err && err.message || err).slice(0, 200) })
   }
 }
 
@@ -459,12 +462,21 @@ function votar(d) {
   if (!reserva.ok || reserva.jaGravando) return reserva.ok ? { ok: true } : reserva
 
   const agora = new Date()
-  if (!cpfDaLinha) eleitores.getRange(n + 1, iCpf + 1).setValue("'" + cpf)
-  if (iVotou >= 0) eleitores.getRange(n + 1, iVotou + 1).setValue(agora)
-  // Linha reservada na fila, e não appendRow: dois appendRow ao mesmo tempo
-  // às vezes caem na mesma linha e um voto apaga o outro (aconteceu no
-  // teste com 100 pessoas no mesmo segundo).
-  votos.getRange(reserva.linha, 1, 1, 5).setValues([[agora, hash, idInscricao, rotulo(rei), rotulo(rainha)]])
+  try {
+    // Linha reservada na fila, e não appendRow: dois appendRow ao mesmo
+    // tempo às vezes caem na mesma linha e um voto apaga o outro (aconteceu
+    // no teste com 100 pessoas no mesmo segundo).
+    votos.getRange(reserva.linha, 1, 1, 5).setValues([[agora, hash, idInscricao, rotulo(rei), rotulo(rainha)]])
+    if (!cpfDaLinha) eleitores.getRange(n + 1, iCpf + 1).setValue("'" + cpf)
+    if (iVotou >= 0) eleitores.getRange(n + 1, iVotou + 1).setValue(agora)
+  } catch (err) {
+    // Não gravou: solta a reserva, senão a nova tentativa do site acharia
+    // que o voto já está sendo gravado e ele se perderia.
+    const props = PropertiesService.getScriptProperties()
+    props.deleteProperty('voto:' + hash)
+    props.deleteProperty('id:' + idInscricao)
+    throw err
+  }
   return { ok: true }
 }
 

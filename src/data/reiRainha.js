@@ -98,7 +98,7 @@ export async function mostrarNoMenu() {
 const post = (dados) => comPrazo(API_URL, { method: 'POST', body: JSON.stringify(dados) }, 45000)
 
 // Fila cheia no script (muita gente votando no último minuto).
-const ocupado = (r) => r && !r.ok && (r.ocupado || /^Muita gente/.test(r.erro || ''))
+const ocupado = (r) => r && !r.ok && (r.ocupado || /^(Muita gente|Erro inesperado)/.test(r.erro || ''))
 
 // No 4G do evento a resposta às vezes se perde depois de o script já ter
 // gravado, e no último minuto a fila do script pode encher. Tentar de novo é

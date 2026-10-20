@@ -45,7 +45,7 @@ async function comPrazo(url, opcoes, ms) {
     clearTimeout(timer)
   }
 }
-const ocupado = (r) => r && !r.ok && (r.ocupado || /^Muita gente/.test(r.erro || ''))
+const ocupado = (r) => r && !r.ok && (r.ocupado || /^(Muita gente|Erro inesperado)/.test(r.erro || ''))
 async function enviar(dados, r) {
   let ultimo
   for (let t = 0; t < 5; t++) {
@@ -56,6 +56,7 @@ async function enviar(dados, r) {
       if (!ocupado(resp)) return resp
       ultimo = resp
       r.filaCheia = (r.filaCheia || 0) + 1
+      if (resp.detalhe) (r.detalhes ||= []).push(resp.detalhe)
     } catch (e) {
       ultimo = e
       r.semResposta = (r.semResposta || 0) + 1
@@ -231,6 +232,9 @@ console.log(`Votos honestos registrados: ${reg}/${honestos.length}`)
 console.log(`Precisaram tentar de novo: ${honestos.filter((r) => (r.tentativas || 1) > 1).length} (fila cheia ${honestos.reduce((a, r) => a + (r.filaCheia || 0), 0)}×, sem resposta ${honestos.reduce((a, r) => a + (r.semResposta || 0), 0)}×)`)
 const fotos = honestos.reduce((a, r) => a + (r.fotos || 0), 0)
 const fotosOk = honestos.reduce((a, r) => a + (r.fotosOk || 0), 0)
+const detalhes = {}
+rs.forEach((r) => (r.detalhes || []).forEach((d) => { detalhes[d] = (detalhes[d] || 0) + 1 }))
+if (Object.keys(detalhes).length) console.log('Erros do Google (o site tentou de novo):', detalhes)
 console.log(`Fotos: ${fotosOk}/${fotos} carregaram (celular: ${honestos.filter((r) => r.tipo === 'celular').reduce((a, r) => a + (r.fotosOk || 0), 0)}/${honestos.filter((r) => r.tipo === 'celular').reduce((a, r) => a + (r.fotos || 0), 0)})`)
 
 if (fraudes.length) {

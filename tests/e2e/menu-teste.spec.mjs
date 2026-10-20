@@ -72,3 +72,23 @@ test('envios simultâneos: reserva barra mesmo CPF em 2 IDs e mesmo ID com 2 CPF
   expect(r5.ok).toBe(true)
   expect(b.linhas('Votos').map((v) => v.id_inscricao)).toEqual(['ZJ-AAAA22', 'ZJ-BBBB33'])
 })
+
+test('planilha recusa a gravação: a reserva é solta e a nova tentativa grava o voto', () => {
+  const b = criarBackend(sementePadrao({ ids: ['ZJ-AAAA22'], candidatos: [
+    { id: 'R1', nome: 'Davi', sobrenome: 'Melo', categoria: 'rei' },
+    { id: 'Q1', nome: 'Ana', sobrenome: 'Souza', categoria: 'rainha' },
+  ] }))
+  const votos = b.abas.Votos
+  const getRange = votos.getRange
+  votos.getRange = () => { throw new Error('Service Spreadsheets failed while accessing document') }
+  const voto = JSON.stringify({ acao: 'votar', cpf: gerarCpf(), id: 'ZJ-AAAA22', rei: 'R1', rainha: 'Q1' })
+  const r1 = b.atender('POST', { corpo: voto })
+  expect(r1).toMatchObject({ ok: false, ocupado: true })
+
+  votos.getRange = getRange
+  expect(b.atender('POST', { corpo: voto }).ok).toBe(true)
+  // A linha reservada na 1ª tentativa fica em branco: o Resultado ignora.
+  expect(b.linhas('Votos').filter((v) => v.cpf_hash)).toHaveLength(1)
+  b.menu('atualizarResultado')
+  expect(b.abas.Resultado.dados[1]).toEqual(expect.arrayContaining([1]))
+})
