@@ -40,4 +40,10 @@ Versão: Nova versão**. Assim o link continua o mesmo.
   também para colar CPF + ID vindos do sistema: aí só aquele CPF usa o ID.
 - **Menu Rei e Rainha**: abrir/fechar votação e inscrições, mostrar/esconder
   a aba no menu do site, sem editar célula.
-- **Resultado**: contagem automática. Não aparece no site.
+- **Resultado**: contagem automática. Não aparece no site. Com muita gente
+  votando junto ela pode ficar alguns segundos atrás; ao **■ Fechar votação**
+  o placar é recontado com todos os votos.
+- **🧪 Teste de carga** (submenu): *Criar IDs de teste* põe IDs `TESTE-001`,
+  `TESTE-002`… em Eleitores para simular o público votando
+  (`npm run test:pico -- <site>`). *Apagar tudo do teste* tira esses IDs, os
+  votos feitos com eles, e reconta. Os IDs e votos de verdade ficam intactos.

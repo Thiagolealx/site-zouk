@@ -97,16 +97,26 @@ export async function mostrarNoMenu() {
 // Prazo largo: com fila de votos o script pode segurar o pedido ~25 s.
 const post = (dados) => comPrazo(API_URL, { method: 'POST', body: JSON.stringify(dados) }, 45000)
 
+// Fila cheia no script (muita gente votando no último minuto).
+const ocupado = (r) => r && !r.ok && (r.ocupado || /^Muita gente/.test(r.erro || ''))
+
 // No 4G do evento a resposta às vezes se perde depois de o script já ter
-// gravado. Uma segunda tentativa é segura: o script reconhece o mesmo envio
-// e confirma sem gravar de novo.
+// gravado, e no último minuto a fila do script pode encher. Tentar de novo é
+// seguro: o script reconhece o mesmo envio e confirma sem gravar de novo.
 export async function enviar(dados) {
-  try {
-    return await post(dados)
-  } catch {
-    await new Promise((r) => setTimeout(r, 2000))
-    return post(dados)
+  let ultimo
+  for (let tentativa = 0; tentativa < 5; tentativa++) {
+    if (tentativa) await new Promise((r) => setTimeout(r, 2000 * tentativa))
+    try {
+      const r = await post(dados)
+      if (!ocupado(r)) return r
+      ultimo = r
+    } catch (e) {
+      ultimo = e
+    }
   }
+  if (ultimo instanceof Error) throw ultimo
+  return ultimo
 }
 
 /**

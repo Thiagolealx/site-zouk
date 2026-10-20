@@ -13,7 +13,7 @@
 
 // Aparece em ?acao=status: mostra qual versão do código está publicada.
 // Troque a cada mudança no script.
-const VERSAO_CODIGO = '2026-10-15.2'
+const VERSAO_CODIGO = '2026-10-20.1'
 
 const NOME_PASTA = 'Rei e Rainha do Baile - Zouk Jampa 2026'
 const NOME_PLANILHA = 'Rei e Rainha - Planilha Principal'
@@ -93,14 +93,14 @@ function configurar() {
 }
 
 /**
- * Reescreve a aba Resultado com a contagem atual. Roda sozinha a cada voto;
- * pelo menu "Rei e Rainha" dá para rodar na mão (se apagar um voto, por
+ * Reescreve a aba Resultado com a contagem atual. Roda sozinha depois dos
+ * votos (recontar) e ao fechar a votação; pelo menu "Rei e Rainha" dá para rodar na mão (se apagar um voto, por
  * exemplo). Contagem feita aqui e não por fórmula: QUERY quebra conforme o
  * idioma da planilha.
  */
-function atualizarResultado(jaLidos) {
+function atualizarResultado() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const votos = Array.isArray(jaLidos) ? jaLidos : linhasComo(aba_('Votos'))
+  const votos = linhasComo(aba_('Votos'))
   const contar = (coluna) => {
     const n = {}
     votos.forEach((v) => { if (v[coluna]) n[v[coluna]] = (n[v[coluna]] || 0) + 1 })
@@ -132,12 +132,21 @@ function onOpen() {
     .addSeparator()
     .addItem('🔑 Gerar IDs que faltam', 'gerarIds')
     .addItem('Atualizar resultado', 'atualizarResultado')
+    .addSeparator()
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('🧪 Teste de carga')
+      .addItem('Criar IDs de teste (TESTE-001…)', 'criarIdsDeTeste')
+      .addItem('Apagar tudo do teste', 'apagarTeste'))
     .addToUi()
 }
 
 // Funções declaradas (não const): o menu só acha função global de verdade.
 function abrirVotacao() { mudarConfig('votacao_aberta', 'SIM', 'Votação aberta.') }
-function fecharVotacao() { mudarConfig('votacao_aberta', 'NAO', 'Votação fechada.') }
+function fecharVotacao() {
+  mudarConfig('votacao_aberta', 'NAO', 'Votação fechada.')
+  // Garante o placar final com todos os votos, mesmo se alguma recontagem
+  // do último minuto ficou para trás.
+  atualizarResultado()
+}
 function abrirInscricoes() { mudarConfig('inscricoes_abertas', 'SIM', 'Inscrições abertas.') }
 function fecharInscricoes() { mudarConfig('inscricoes_abertas', 'NAO', 'Inscrições fechadas.') }
 function mostrarNoMenu() { mudarConfig('mostrar_no_menu', 'SIM', 'Aba "Rei & Rainha" aparece no menu do site.') }
@@ -175,6 +184,56 @@ function gerarIds() {
   }
   aba.getRange(aba.getLastRow() + 1, 1, qtd, cab.length).setValues(novas)
   SpreadsheetApp.getActive().toast(`${qtd} ID(s) gerado(s).`, 'Rei e Rainha')
+}
+
+// ------------------------------------------------------------ teste de carga
+// IDs TESTE-001, TESTE-002… para simular o público votando no site de
+// verdade. "Apagar tudo do teste" tira esses IDs e os votos feitos com eles
+// e reconta: a planilha volta a ficar como antes.
+const PREFIXO_TESTE = 'TESTE-'
+
+function criarIdsDeTeste() {
+  const ui = SpreadsheetApp.getUi()
+  const r = ui.prompt('Teste de carga', 'Quantos IDs de teste?', ui.ButtonSet.OK_CANCEL)
+  if (r.getSelectedButton() !== ui.Button.OK) return
+  const qtd = parseInt(r.getResponseText(), 10)
+  if (!(qtd >= 1 && qtd <= 999)) return ui.alert('Digite um número de 1 a 999.')
+  apagarLinhasDeTeste('Eleitores')
+  const aba = aba_('Eleitores')
+  const cab = aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0].map((c) => String(c).trim())
+  const iId = cab.indexOf('id_inscricao')
+  const novas = Array.from({ length: qtd }, (_, i) => {
+    const linha = cab.map(() => '')
+    linha[iId] = PREFIXO_TESTE + String(i + 1).padStart(3, '0')
+    return linha
+  })
+  aba.getRange(aba.getLastRow() + 1, 1, qtd, cab.length).setValues(novas)
+  SpreadsheetApp.getActive().toast(`${qtd} ID(s) de teste criados.`, 'Rei e Rainha')
+}
+
+function apagarTeste() {
+  const n = apagarLinhasDeTeste('Votos')
+  apagarLinhasDeTeste('Eleitores')
+  atualizarResultado()
+  limparCache()
+  SpreadsheetApp.getActive().toast(`Teste apagado (${n} voto(s) de teste).`, 'Rei e Rainha')
+}
+
+// Apaga, de baixo para cima, as linhas cujo id_inscricao começa com TESTE-.
+function apagarLinhasDeTeste(nome) {
+  const aba = aba_(nome)
+  const valores = aba.getDataRange().getValues()
+  const iId = valores[0].map((c) => String(c).trim()).indexOf('id_inscricao')
+  let apagadas = 0
+  for (let i = valores.length - 1; i > 0; i--) {
+    if (String(valores[i][iId]).toUpperCase().indexOf(PREFIXO_TESTE) !== 0) continue
+    let inicio = i
+    while (inicio - 1 > 0 && String(valores[inicio - 1][iId]).toUpperCase().indexOf(PREFIXO_TESTE) === 0) inicio--
+    aba.deleteRows(inicio + 1, i - inicio + 1)
+    apagadas += i - inicio + 1
+    i = inicio
+  }
+  return apagadas
 }
 
 // Os botões do menu só escrevem na aba Config; o site lê de lá na hora.
@@ -245,15 +304,45 @@ function doPost(e) {
   // passariam os dois pela checagem de duplicidade.
   const lock = LockService.getScriptLock()
   if (!lock.tryLock(25000)) {
-    return responder({ ok: false, erro: 'Muita gente ao mesmo tempo. Tente de novo em alguns segundos.' })
+    return responder({ ok: false, ocupado: true, erro: 'Muita gente votando agora. Tente de novo em alguns segundos.' })
   }
+  let resposta
   try {
-    if (dados.acao === 'inscrever') return responder(inscrever(dados))
-    if (dados.acao === 'votar') return responder(votar(dados))
-    return responder({ ok: false, erro: 'Ação desconhecida.' })
+    if (dados.acao === 'inscrever') resposta = inscrever(dados)
+    else if (dados.acao === 'votar') resposta = votar(dados)
+    else resposta = { ok: false, erro: 'Ação desconhecida.' }
+    // Grava de verdade antes de soltar a trava: o próximo da fila precisa
+    // enxergar este voto, senão o mesmo CPF passaria duas vezes.
+    SpreadsheetApp.flush()
   } catch (err) {
     console.error(err)
-    return responder({ ok: false, erro: 'Erro inesperado. Tente de novo.' })
+    resposta = { ok: false, erro: 'Erro inesperado. Tente de novo.' }
+  } finally {
+    lock.releaseLock()
+  }
+  // Fora da trava: a recontagem não segura a fila de votos.
+  if (dados.acao === 'votar' && resposta.ok) recontar()
+  return responder(resposta)
+}
+
+/**
+ * Atualiza a aba Resultado depois de um voto, sem travar quem está votando.
+ * Se outro voto já está recontando, só deixa o pedido marcado: quem está
+ * recontando vê a marca e conta de novo, pegando este voto também.
+ */
+function recontar() {
+  const cache = CacheService.getScriptCache()
+  cache.put('recontar', '1', 600)
+  const lock = LockService.getDocumentLock()
+  if (!lock.tryLock(0)) return
+  try {
+    while (cache.get('recontar')) {
+      cache.remove('recontar')
+      atualizarResultado()
+      SpreadsheetApp.flush()
+    }
+  } catch (err) {
+    console.error(err)
   } finally {
     lock.releaseLock()
   }
@@ -360,10 +449,6 @@ function votar(d) {
   if (iVotou >= 0) eleitores.getRange(n + 1, iVotou + 1).setValue(agora)
   const novo = [agora, hash, idInscricao, rotulo(rei), rotulo(rainha)]
   votos.appendRow(novo)
-  // Recontagem com o que já foi lido acima: sem reler a aba Votos inteira
-  // enquanto segura a trava (é o que deixa a fila de votos andar).
-  linhasVotos.push({ voto_rei: novo[3], voto_rainha: novo[4] })
-  atualizarResultado(linhasVotos)
   return { ok: true }
 }
 

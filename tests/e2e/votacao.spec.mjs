@@ -87,6 +87,16 @@ test('resposta perdida no voto (4G fraco): site reenvia, mostra sucesso e não d
   expect(backend.linhas('Votos')).toHaveLength(1)
 })
 
+test('fila cheia no último minuto: o site espera, tenta de novo e o voto entra', async ({ page }) => {
+  const { backend, postsRecebidos } = await ligarBackend(page, semente(), { filaCheia: 3 })
+  await page.goto('/votacao')
+  await votar(page, { cpf: gerarCpf(), id: IDS[0] })
+  await expect(page.getByText('Seu voto está na fila')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('Voto registrado')).toBeVisible({ timeout: 20000 })
+  expect(postsRecebidos).toHaveLength(4)
+  expect(backend.linhas('Votos')).toHaveLength(1)
+})
+
 test('candidato tirado da cédula (NAO/PENDENTE) não aparece', async ({ page }) => {
   await ligarBackend(page, sementePadrao({
     ids: IDS,

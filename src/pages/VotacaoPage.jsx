@@ -92,6 +92,14 @@ function Cedula({ candidatos }) {
   const [erro, setErro] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [pronto, setPronto] = useState(false)
+  const [demorando, setDemorando] = useState(false)
+
+  // No último minuto a fila do script anda devagar: avisa para não fechar.
+  useEffect(() => {
+    if (!enviando) return setDemorando(false)
+    const t = setTimeout(() => setDemorando(true), 6000)
+    return () => clearTimeout(t)
+  }, [enviando])
 
   const reis = candidatos.filter((c) => c.categoria === 'rei')
   const rainhas = candidatos.filter((c) => c.categoria === 'rainha')
@@ -156,6 +164,11 @@ function Cedula({ candidatos }) {
         </div>
 
         {erro && <p className="text-coral font-semibold">{erro}</p>}
+        {demorando && (
+          <p className="text-sand font-semibold">
+            Muita gente votando agora. Seu voto está na fila: não feche esta página.
+          </p>
+        )}
 
         <button
           type="submit"

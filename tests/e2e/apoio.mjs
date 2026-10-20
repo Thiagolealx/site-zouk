@@ -16,8 +16,10 @@ export const CANDIDATOS = [
  * Codigo.gs rodando em memória, e as fotos do Drive viram um PNG local.
  * `perderPrimeiraResposta`: o script grava, mas a resposta não chega —
  * o 4G fraco do evento.
+ * `filaCheia`: os N primeiros votos esbarram na fila cheia do script
+ * (tryLock estourou), como no último minuto da votação.
  */
-export async function ligarBackend(page, semente, { perderPrimeiraResposta = false, falharGets = 0, atrasoGetMs = 0 } = {}) {
+export async function ligarBackend(page, semente, { perderPrimeiraResposta = false, falharGets = 0, atrasoGetMs = 0, filaCheia = 0 } = {}) {
   const backend = criarBackend(semente)
   let perder = perderPrimeiraResposta
   let falhas = falharGets
@@ -39,6 +41,10 @@ export async function ligarBackend(page, semente, { perderPrimeiraResposta = fal
     }
     const corpo = req.postData() || ''
     postsRecebidos.push(JSON.parse(corpo))
+    if (filaCheia > 0) {
+      filaCheia--
+      return route.fulfill({ json: { ok: false, ocupado: true, erro: 'Muita gente votando agora. Tente de novo em alguns segundos.' } })
+    }
     const resposta = backend.atender('POST', { corpo })
     if (perder) {
       perder = false

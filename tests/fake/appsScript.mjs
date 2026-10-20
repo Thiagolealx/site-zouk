@@ -47,6 +47,7 @@ function criarAba(nome, linhas = []) {
     getDataRange: () => faixa(1, 1, d.length, largura()),
     getRange: (a, c, nr, nc) => (typeof a === 'string' ? faixa(1, 1) : faixa(a, c, nr, nc)),
     appendRow(linha) { d.push(linha.map(comoSheets)) },
+    deleteRows(inicio, qtd) { d.splice(inicio - 1, qtd) },
     clear() { d.length = 0 },
     getLastRow: () => d.length,
     getLastColumn: () => largura(),
@@ -65,6 +66,14 @@ export function criarBackend(semente = {}) {
   const props = new Map([['PASTA_FOTOS', 'pasta-fotos'], ['SAL', 'sal-de-teste']])
   const stats = { execucoes: 0 }
   const cache = new Map()
+  // Menu da planilha: `respostas` são o que a pessoa digitaria nos prompts.
+  const respostas = []
+  const ui = {
+    Button: { OK: 'ok' },
+    ButtonSet: { OK_CANCEL: 'okc' },
+    prompt: () => ({ getSelectedButton: () => 'ok', getResponseText: () => String(respostas.shift()) }),
+    alert() {},
+  }
 
   const planilha = {
     getSheetByName: (n) => abas[n] || null,
@@ -81,6 +90,8 @@ export function criarBackend(semente = {}) {
     SpreadsheetApp: {
       getActiveSpreadsheet: () => planilha,
       getActive: () => planilha,
+      flush() { stats.flushes = (stats.flushes || 0) + 1 },
+      getUi: () => ui,
     },
     DriveApp: {
       Access: { ANYONE_WITH_LINK: 'link' },
@@ -108,7 +119,10 @@ export function criarBackend(semente = {}) {
     CacheService: {
       getScriptCache: () => ({ get: (k) => cache.get(k) ?? null, put: (k, v) => cache.set(k, v), remove: (k) => cache.delete(k) }),
     },
-    LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) },
+    LockService: {
+      getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }),
+      getDocumentLock: () => ({ tryLock: () => true, releaseLock() {} }),
+    },
     ContentService: {
       MimeType: { JSON: 'json' },
       createTextOutput: (s) => ({ conteudo: s, setMimeType() { return this } }),
@@ -127,6 +141,11 @@ export function criarBackend(semente = {}) {
         ? contexto.doGet({ parameter: query })
         : contexto.doPost({ postData: { contents: corpo } })
       return JSON.parse(saida.conteudo)
+    },
+    /** Clica num item do menu "Rei e Rainha" (`digitar` = resposta do prompt). */
+    menu(funcao, ...digitar) {
+      respostas.push(...digitar)
+      contexto[funcao]()
     },
     /** Edição à mão na planilha: no Google o onEdit limpa o cache. */
     editouAMao() { contexto.onEdit() },
