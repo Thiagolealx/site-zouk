@@ -112,7 +112,13 @@ export function criarBackend(semente = {}) {
       computeDigest: (_, s) => [...crypto.createHash('sha256').update(s).digest()].map((b) => (b > 127 ? b - 256 : b)),
     },
     PropertiesService: {
-      getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }),
+      getScriptProperties: () => ({
+        getProperty: (k) => props.get(k) ?? null,
+        setProperty: (k, v) => props.set(k, v),
+        setProperties: (o) => Object.entries(o).forEach(([k, v]) => props.set(k, v)),
+        getProperties: () => Object.fromEntries(props),
+        deleteProperty: (k) => props.delete(k),
+      }),
     },
     // Node roda uma chamada por vez: o lock sempre pega. Concorrência real
     // (limite de execuções simultâneas do Google) só no teste contra o Google.
@@ -133,6 +139,7 @@ export function criarBackend(semente = {}) {
   return {
     abas,
     arquivos,
+    props,
     stats,
     /** Mesmo contrato do App da Web: GET ?acao=… ou POST com corpo JSON. */
     atender(metodo, { query = {}, corpo = '' } = {}) {

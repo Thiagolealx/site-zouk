@@ -109,6 +109,9 @@ inventados.forEach(executar)
 const fila = { length: tempos.length }
 
 // -------------------------------------------------------------- integridade
+// Com voto atrás de voto a aba Resultado só reconta a cada 15 s; o placar
+// final sai ao fechar a votação pelo menu.
+b.menu('fecharVotacao')
 const votos = b.linhas('Votos')
 const eleitores = b.linhas('Eleitores')
 const resultado = b.abas.Resultado.dados

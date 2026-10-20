@@ -13,7 +13,7 @@
 
 // Aparece em ?acao=status: mostra qual versão do código está publicada.
 // Troque a cada mudança no script.
-const VERSAO_CODIGO = '2026-10-20.1'
+const VERSAO_CODIGO = '2026-10-20.2'
 
 const NOME_PASTA = 'Rei e Rainha do Baile - Zouk Jampa 2026'
 const NOME_PLANILHA = 'Rei e Rainha - Planilha Principal'
@@ -288,8 +288,10 @@ function limparCache() {
 }
 
 // Gatilho simples do Sheets: roda sozinho quando alguém edita uma célula à mão.
-function onEdit() {
+// Mexeu na Config (fechou a votação na célula, por exemplo): reconta também.
+function onEdit(e) {
   limparCache()
+  if (e && e.range && e.range.getSheet().getName() === 'Config') atualizarResultado()
 }
 
 function doPost(e) {
@@ -299,48 +301,50 @@ function doPost(e) {
   } catch (err) {
     return responder({ ok: false, erro: 'Requisição inválida.' })
   }
-
-  // Uma escrita por vez: sem isso, dois votos do mesmo CPF chegando juntos
-  // passariam os dois pela checagem de duplicidade.
-  const lock = LockService.getScriptLock()
-  if (!lock.tryLock(25000)) {
-    return responder({ ok: false, ocupado: true, erro: 'Muita gente votando agora. Tente de novo em alguns segundos.' })
-  }
-  let resposta
   try {
-    if (dados.acao === 'inscrever') resposta = inscrever(dados)
-    else if (dados.acao === 'votar') resposta = votar(dados)
-    else resposta = { ok: false, erro: 'Ação desconhecida.' }
-    // Grava de verdade antes de soltar a trava: o próximo da fila precisa
-    // enxergar este voto, senão o mesmo CPF passaria duas vezes.
-    SpreadsheetApp.flush()
+    if (dados.acao === 'votar') {
+      const r = votar(dados)
+      if (r.ok) recontar()
+      return responder(r)
+    }
+    if (dados.acao === 'inscrever') return responder(naFila(() => inscrever(dados), 25000))
+    return responder({ ok: false, erro: 'Ação desconhecida.' })
   } catch (err) {
     console.error(err)
-    resposta = { ok: false, erro: 'Erro inesperado. Tente de novo.' }
+    return responder({ ok: false, erro: 'Erro inesperado. Tente de novo.' })
+  }
+}
+
+const OCUPADO = { ok: false, ocupado: true, erro: 'Muita gente votando agora. Tente de novo em alguns segundos.' }
+
+// Uma execução por vez dentro de `fn`. Grava tudo antes de soltar a trava:
+// o próximo da fila precisa enxergar o que este escreveu.
+function naFila(fn, esperaMs) {
+  const lock = LockService.getScriptLock()
+  if (!lock.tryLock(esperaMs)) return OCUPADO
+  try {
+    const r = fn()
+    SpreadsheetApp.flush()
+    return r
   } finally {
     lock.releaseLock()
   }
-  // Fora da trava: a recontagem não segura a fila de votos.
-  if (dados.acao === 'votar' && resposta.ok) recontar()
-  return responder(resposta)
 }
 
 /**
- * Atualiza a aba Resultado depois de um voto, sem travar quem está votando.
- * Se outro voto já está recontando, só deixa o pedido marcado: quem está
- * recontando vê a marca e conta de novo, pegando este voto também.
+ * Atualiza a aba Resultado depois dos votos, no máximo a cada 15 s e uma
+ * recontagem por vez: com o público todo votando junto, recontar a cada
+ * voto deixava a planilha lenta para todo mundo. Os votos dos últimos
+ * segundos entram na recontagem seguinte, e ■ Fechar votação reconta tudo.
  */
 function recontar() {
   const cache = CacheService.getScriptCache()
-  cache.put('recontar', '1', 600)
+  if (cache.get('recontado')) return
   const lock = LockService.getDocumentLock()
   if (!lock.tryLock(0)) return
   try {
-    while (cache.get('recontar')) {
-      cache.remove('recontar')
-      atualizarResultado()
-      SpreadsheetApp.flush()
-    }
+    cache.put('recontado', '1', 15)
+    atualizarResultado()
   } catch (err) {
     console.error(err)
   } finally {
@@ -427,6 +431,7 @@ function votar(d) {
   const rei = aprovados.find((c) => c.id === d.rei && c.categoria === 'rei')
   const rainha = aprovados.find((c) => c.id === d.rainha && c.categoria === 'rainha')
   const rotulo = (c) => `${c.nome} ${c.sobrenome} (${c.id})`
+  const voto = rei && rainha ? `${rotulo(rei)}|${rotulo(rainha)}` : ''
 
   const hash = hashCpf(cpf)
   const votos = aba_('Votos')
@@ -435,21 +440,73 @@ function votar(d) {
   if (anterior) {
     // O mesmo voto chegando de novo é o site repetindo o envio porque a
     // resposta do primeiro se perdeu (4G fraco): confirma sem gravar.
-    const repetido = rei && rainha &&
-      String(anterior.id_inscricao).toUpperCase() === idInscricao &&
-      anterior.voto_rei === rotulo(rei) && anterior.voto_rainha === rotulo(rainha)
+    const repetido = String(anterior.id_inscricao).toUpperCase() === idInscricao &&
+      `${anterior.voto_rei}|${anterior.voto_rainha}` === voto
     if (repetido) return { ok: true }
     return { ok: false, erro: 'Este CPF já votou. Cada pessoa vota uma vez só.' }
   }
+  if (linhasVotos.some((l) => String(l.id_inscricao).toUpperCase() === idInscricao)) {
+    return { ok: false, erro: 'Este ID já foi usado por outro CPF.' }
+  }
+  if (!voto) return { ok: false, erro: 'Escolha um rei e uma rainha.' }
 
-  if (!rei || !rainha) return { ok: false, erro: 'Escolha um rei e uma rainha.' }
+  // Até aqui só leitura, cada um no seu tempo. Na fila fica só a reserva do
+  // CPF e do ID (décimos de segundo), para dois envios simultâneos não
+  // passarem os dois. A gravação na planilha vem depois, fora da fila.
+  const reserva = naFila(() => reservar(hash, idInscricao, voto), 20000)
+  if (!reserva.ok || reserva.jaGravando) return reserva.ok ? { ok: true } : reserva
 
   const agora = new Date()
   if (!cpfDaLinha) eleitores.getRange(n + 1, iCpf + 1).setValue("'" + cpf)
   if (iVotou >= 0) eleitores.getRange(n + 1, iVotou + 1).setValue(agora)
-  const novo = [agora, hash, idInscricao, rotulo(rei), rotulo(rainha)]
-  votos.appendRow(novo)
+  votos.appendRow([agora, hash, idInscricao, rotulo(rei), rotulo(rainha)])
   return { ok: true }
+}
+
+// Reserva vale 2 min: tempo de sobra para a gravação na planilha. Depois
+// disso quem manda é a planilha (se a organização apagar um voto à mão, a
+// pessoa pode votar de novo).
+const RESERVA_MS = 2 * 60 * 1000
+
+function reservar(hash, id, voto) {
+  const props = PropertiesService.getScriptProperties()
+  const agora = Date.now()
+  const ler = (chave) => {
+    try {
+      const r = JSON.parse(props.getProperty(chave))
+      return r && agora - r.em < RESERVA_MS ? r : null
+    } catch (err) {
+      return null
+    }
+  }
+  const doCpf = ler('voto:' + hash)
+  if (doCpf) {
+    // Mesmo envio repetido enquanto o primeiro ainda grava: confirma.
+    if (doCpf.id === id && doCpf.voto === voto) return { ok: true, jaGravando: true }
+    return { ok: false, erro: 'Este CPF já votou. Cada pessoa vota uma vez só.' }
+  }
+  const doId = ler('id:' + id)
+  if (doId && doId.hash !== hash) return { ok: false, erro: 'Este ID já foi usado por outro CPF.' }
+  props.setProperties({
+    ['voto:' + hash]: JSON.stringify({ id, voto, em: agora }),
+    ['id:' + id]: JSON.stringify({ hash, em: agora }),
+  })
+  limparReservasVelhas(props, agora)
+  return { ok: true }
+}
+
+// De vez em quando tira as reservas vencidas, para não acumular.
+function limparReservasVelhas(props, agora) {
+  if (Math.random() > 0.05) return
+  const todas = props.getProperties()
+  Object.keys(todas).forEach((k) => {
+    if (k.indexOf('voto:') !== 0 && k.indexOf('id:') !== 0) return
+    try {
+      if (agora - JSON.parse(todas[k]).em > RESERVA_MS) props.deleteProperty(k)
+    } catch (err) {
+      props.deleteProperty(k)
+    }
+  })
 }
 
 // ------------------------------------------------------------------ apoio
