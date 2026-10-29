@@ -24,7 +24,7 @@ const passes = [
     titulo: 'Full Pass',
     subtitulo: 'Sem passeio de barco',
     preco: 'R$ 490,00',
-    itens: ['3 bailes', 'Mais de 15h de aulas', 'Competição Jack & Jill', 'Apresentações especiais'],
+    itens: ['3 bailes', 'Mais de 15h de aulas', 'Apresentações especiais'],
   },
   {
     id: 'sim',
