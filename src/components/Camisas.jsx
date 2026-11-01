@@ -1,6 +1,6 @@
 import { useMarquee } from '../hooks/useMarquee'
 import { Link } from '../router'
-import { emLinha, precos, TECIDO } from '../data/camisas'
+import { emLinha, precos, TECIDO, PEDIDOS_ABERTOS } from '../data/camisas'
 
 // Dois cards por cor, uma foto de cada modelagem. É o tamanho que resolve as
 // duas coisas ao mesmo tempo: enche o trilho — abaixo disso o carrossel não
@@ -41,6 +41,11 @@ export default function Camisas() {
             {precos.map((p) => `${p.tipo} ${p.valor}`).join(' · ')} — tecido {TECIDO},
             nas modelagens oversized e cropped.
           </p>
+          {!PEDIDOS_ABERTOS && (
+            <p className="mt-3 text-[15px] font-bold text-sun-yellow">
+              Pedidos encerrados — alguns modelos estarão à venda no dia do festival.
+            </p>
+          )}
         </div>
 
         {/* Mesma regra do lineup: sem cópia a lista não enche o trilho, então

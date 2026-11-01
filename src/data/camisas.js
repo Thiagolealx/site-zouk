@@ -108,6 +108,10 @@ export const precos = [
 export const emLinha = modelos.filter((modelo) => !modelo.fora)
 export const foraDeLinha = modelos.filter((modelo) => modelo.fora)
 
+// Pedidos antecipados encerrados: some o formulário e o pagamento, e a página
+// avisa que haverá alguns modelos à venda no dia. Voltar para true reabre tudo.
+export const PEDIDOS_ABERTOS = false
+
 export const TECIDO = 'Suedine'
 export const PIX_KEY = 'zouk.jampa.pb@gmail.com'
 export const WHATSAPP = '5583998699329'

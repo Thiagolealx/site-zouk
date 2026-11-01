@@ -10,6 +10,7 @@ import {
   WHATSAPP,
   WHATSAPP_DISPLAY,
   TALLY_ID,
+  PEDIDOS_ABERTOS,
 } from './data/camisas'
 
 function Galeria({ modelo }) {
@@ -369,7 +370,7 @@ export default function CamisasPage() {
                     href="#pedido"
                     className="inline-block bg-sunset-gradient text-night font-bold px-8 py-3 rounded-full hover:scale-105 transition-transform"
                   >
-                    Fazer meu pedido
+                    {PEDIDOS_ABERTOS ? 'Fazer meu pedido' : 'Pedidos encerrados'}
                   </a>
                   <a
                     href="#medidas"
@@ -387,36 +388,64 @@ export default function CamisasPage() {
 
         <TabelaMedidas />
 
-        <section id="pedido" className="px-6 py-20 md:py-28 scroll-mt-24">
-          <div className="max-w-2xl mx-auto text-center mb-10">
-            <h2 className="font-display text-3xl md:text-5xl text-sand mb-4">
-              FAZER MEU PEDIDO
-            </h2>
-            <p className="font-body text-sand/70">
-              1. Preencha o formulário com modelo, modelagem e tamanho.
-              2. Pague por Pix ou cartão. 3. Envie o comprovante no WhatsApp.
-            </p>
-          </div>
-
-          <div className="max-w-2xl mx-auto bg-night-light border border-sand/10 rounded-3xl overflow-hidden shadow-2xl">
-            <FormularioTally />
-          </div>
-
-          <div className="max-w-4xl mx-auto mt-14">
-            <h3 className="font-display text-2xl text-sand text-center mb-8">
-              PAGAMENTO
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <BlocoPix />
-              <BlocoCartao />
-            </div>
-
-            <div className="mt-6">
-              <ConfirmacaoWhatsApp />
-            </div>
-          </div>
-        </section>
+        {PEDIDOS_ABERTOS ? <SecaoPedido /> : <PedidosEncerrados />}
       </main>
     </div>
+  )
+}
+
+// Fim da pré-venda: no lugar do formulário e do pagamento, só o aviso de que
+// vai ter peça à venda no festival — sem Pix nem link, para ninguém pagar por
+// um pedido que não será atendido.
+function PedidosEncerrados() {
+  return (
+    <section id="pedido" className="px-6 py-20 md:py-28 scroll-mt-24">
+      <div className="max-w-2xl mx-auto bg-night-light border border-sand/10 rounded-3xl p-10 text-center">
+        <span className="inline-block text-[11px] font-bold uppercase tracking-widest text-night bg-sun-yellow px-3 py-1 rounded-full">
+          Encerrado
+        </span>
+        <h2 className="font-display text-3xl md:text-5xl text-sand mt-5 mb-4">
+          PEDIDOS ENCERRADOS
+        </h2>
+        <p className="font-body text-sand/70 max-w-xl mx-auto">
+          A pré-venda das camisas terminou. Haverá alguns modelos disponíveis
+          para venda no dia do festival — enquanto durarem.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function SecaoPedido() {
+  return (
+    <section id="pedido" className="px-6 py-20 md:py-28 scroll-mt-24">
+      <div className="max-w-2xl mx-auto text-center mb-10">
+        <h2 className="font-display text-3xl md:text-5xl text-sand mb-4">
+          FAZER MEU PEDIDO
+        </h2>
+        <p className="font-body text-sand/70">
+          1. Preencha o formulário com modelo, modelagem e tamanho.
+          2. Pague por Pix ou cartão. 3. Envie o comprovante no WhatsApp.
+        </p>
+      </div>
+
+      <div className="max-w-2xl mx-auto bg-night-light border border-sand/10 rounded-3xl overflow-hidden shadow-2xl">
+        <FormularioTally />
+      </div>
+
+      <div className="max-w-4xl mx-auto mt-14">
+        <h3 className="font-display text-2xl text-sand text-center mb-8">
+          PAGAMENTO
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BlocoPix />
+          <BlocoCartao />
+        </div>
+
+        <div className="mt-6">
+          <ConfirmacaoWhatsApp />
+        </div>
+      </div>
+    </section>
   )
 }
