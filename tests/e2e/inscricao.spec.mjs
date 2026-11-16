@@ -49,6 +49,46 @@ test('mesmo CPF não se candidata duas vezes', async ({ page }) => {
   await expect(page.getByText('Já existe uma candidatura com este CPF.')).toBeVisible()
 })
 
+test('dedurar um amigo: CPF some e a candidatura entra sem CPF', async ({ page }) => {
+  const { backend } = await ligarBackend(page, sementePadrao({ votacao: 'NAO' }))
+  await page.goto('/rei-e-rainha')
+
+  await page.getByRole('checkbox', { name: /Dedurar um amigo/ }).check()
+  await expect(page.getByLabel('CPF')).toHaveCount(0)
+  await page.getByRole('button', { name: /Rei do baile/ }).click()
+  await page.getByLabel('Nome', { exact: true }).fill('Pedro')
+  await page.getByLabel('Sobrenome').fill('Amigo')
+  await page.getByLabel('Estado').selectOption('PB')
+  await page.locator('input[type=file]').setInputFiles(FOTO)
+  await expect(page.getByAltText('Foto do amigo')).toBeVisible()
+  await page.getByRole('button', { name: 'Enviar candidatura' }).click()
+  await expect(page.getByText('Amigo dedurado')).toBeVisible()
+
+  const [linha] = backend.linhas('Candidatos')
+  expect(linha).toMatchObject({ nome: 'Pedro', sobrenome: 'Amigo', categoria: 'rei', aprovado: 'SIM' })
+  expect(String(linha.cpf)).toBe('')
+})
+
+test('CPF é opcional na própria inscrição e o mesmo nome não entra duas vezes', async ({ page }) => {
+  const { backend } = await ligarBackend(page, sementePadrao({ votacao: 'NAO' }))
+  await page.goto('/rei-e-rainha')
+  await preencher(page, { cpf: '' })
+  await page.getByRole('button', { name: 'Enviar candidatura' }).click()
+  await expect(page.getByText('Candidatura enviada')).toBeVisible()
+
+  // Um amigo dedura a mesma pessoa depois: não duplica na cédula.
+  await page.reload()
+  await page.getByRole('checkbox', { name: /Dedurar um amigo/ }).check()
+  await page.getByRole('button', { name: /Rainha do baile/ }).click()
+  await page.getByLabel('Nome', { exact: true }).fill('maria')
+  await page.getByLabel('Sobrenome').fill('SILVA')
+  await page.getByLabel('Estado').selectOption('PB')
+  await page.locator('input[type=file]').setInputFiles(FOTO)
+  await page.getByRole('button', { name: 'Enviar candidatura' }).click()
+  await expect(page.getByText('Amigo dedurado')).toBeVisible()
+  expect(backend.linhas('Candidatos')).toHaveLength(1)
+})
+
 test('CPF inválido é barrado antes de enviar', async ({ page }) => {
   const { postsRecebidos } = await ligarBackend(page, sementePadrao({ votacao: 'NAO' }))
   await page.goto('/rei-e-rainha')

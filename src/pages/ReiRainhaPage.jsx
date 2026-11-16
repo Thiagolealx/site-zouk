@@ -25,6 +25,9 @@ export function Aviso({ children }) {
 
 function Formulario() {
   const [dados, setDados] = useState({ nome: '', sobrenome: '', cpf: '', estado: '', categoria: '' })
+  // 'eu' = a própria pessoa se candidata; 'amigo' = dedura um amigo (sem CPF).
+  const [quem, setQuem] = useState('eu')
+  const amigo = quem === 'amigo'
   const [foto, setFoto] = useState(null)
   const [erro, setErro] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -46,14 +49,15 @@ function Formulario() {
 
   const submeter = async (e) => {
     e.preventDefault()
-    if (!cpfValido(dados.cpf)) return setErro('Confira o CPF.')
+    const cpf = amigo ? '' : dados.cpf
+    if (cpf && !cpfValido(cpf)) return setErro('Confira o CPF.')
     if (!dados.categoria) return setErro('Escolha se é candidatura a rei ou a rainha.')
     if (!foto) return setErro('Envie uma foto.')
 
     setEnviando(true)
     setErro('')
     try {
-      const r = await enviar({ acao: 'inscrever', ...dados, foto })
+      const r = await enviar({ acao: 'inscrever', ...dados, cpf, foto })
       if (r.ok) setPronto(true)
       else setErro(r.erro)
     } catch {
@@ -66,9 +70,13 @@ function Formulario() {
   if (pronto) {
     return (
       <Aviso>
-        <p className="font-display text-3xl uppercase text-sand">Candidatura enviada 👑</p>
+        <p className="font-display text-3xl uppercase text-sand">
+          {amigo ? 'Amigo dedurado 🕵️' : 'Candidatura enviada 👑'}
+        </p>
         <p className="mt-3">
-          Sua candidatura já aparece na votação. Boa sorte!
+          {amigo
+            ? 'A candidatura do seu amigo já aparece na votação. Agora é avisar e fazer campanha!'
+            : 'Sua candidatura já aparece na votação. Boa sorte!'}
         </p>
       </Aviso>
     )
@@ -80,7 +88,34 @@ function Formulario() {
       className="mt-12 max-w-[640px] mx-auto p-7 sm:p-9 rounded-[22px] bg-night-light border border-line grid gap-5"
     >
       <fieldset>
-        <legend className={rotulo}>Quero concorrer a</legend>
+        <legend className={rotulo}>Inscrição</legend>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { id: 'eu', label: '🙋 Minha inscrição' },
+            { id: 'amigo', label: '🕵️ Dedurar um amigo' },
+          ].map((op) => (
+            <label
+              key={op.id}
+              className={`flex items-center justify-center gap-2.5 py-4 px-3 rounded-xl border text-base font-bold cursor-pointer transition-colors ${
+                quem === op.id
+                  ? 'border-sun-yellow bg-night-hover text-sun-yellow'
+                  : 'border-line bg-night text-sand hover:border-mist'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={quem === op.id}
+                onChange={() => setQuem(op.id)}
+                className="w-4 h-4 accent-sun-yellow"
+              />
+              {op.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className={rotulo}>{amigo ? 'Meu amigo concorre a' : 'Quero concorrer a'}</legend>
         <div className="grid grid-cols-2 gap-3">
           {[
             { id: 'rei', label: '🤴 Rei do baile' },
@@ -101,6 +136,9 @@ function Formulario() {
             </button>
           ))}
         </div>
+        <p className="mt-2.5 text-[13.5px] leading-relaxed text-haze">
+          ⚠️ Cada pessoa só pode concorrer em uma categoria: rei <strong>ou</strong> rainha.
+        </p>
       </fieldset>
 
       <div className="grid sm:grid-cols-2 gap-5">
@@ -115,17 +153,18 @@ function Formulario() {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
-        <label>
-          <span className={rotulo}>CPF</span>
-          <input
-            required
-            inputMode="numeric"
-            placeholder="000.000.000-00"
-            value={dados.cpf}
-            onChange={mudar('cpf')}
-            className={campo}
-          />
-        </label>
+        {!amigo && (
+          <label>
+            <span className={rotulo}>CPF (opcional)</span>
+            <input
+              inputMode="numeric"
+              placeholder="000.000.000-00"
+              value={dados.cpf}
+              onChange={mudar('cpf')}
+              className={campo}
+            />
+          </label>
+        )}
         <label>
           <span className={rotulo}>Estado</span>
           <select required value={dados.estado} onChange={mudar('estado')} className={campo}>
@@ -145,20 +184,25 @@ function Formulario() {
         <span className={rotulo}>Foto</span>
         <label className="flex items-center gap-4 p-4 rounded-xl bg-night border border-dashed border-line cursor-pointer hover:border-mist transition-colors">
           {foto ? (
-            <img src={foto} alt="Sua foto" className="w-20 h-20 rounded-xl object-cover" />
+            <img src={foto} alt={amigo ? 'Foto do amigo' : 'Sua foto'} className="w-20 h-20 rounded-xl object-cover" />
           ) : (
             <span className="w-20 h-20 rounded-xl bg-night-hover grid place-items-center text-3xl">📷</span>
           )}
           <span className="text-[15px] text-mist">
-            {foto ? 'Trocar foto' : 'Escolha uma foto sua, de rosto bem visível.'}
+            {foto
+              ? 'Trocar foto'
+              : amigo
+                ? 'Escolha uma foto do seu amigo, de rosto bem visível.'
+                : 'Escolha uma foto sua, de rosto bem visível.'}
           </span>
           <input type="file" accept="image/*" onChange={escolherFoto} className="sr-only" />
         </label>
       </div>
 
       <p className="text-[13.5px] leading-relaxed text-haze">
-        Seu nome, estado e foto aparecem na votação depois que a organização aprovar. O CPF é usado
-        só para evitar candidatura repetida e não é mostrado no site.
+        {amigo
+          ? 'Nome, estado e foto do seu amigo aparecem na votação. Se ele não quiser concorrer, a organização tira da cédula.'
+          : 'Seu nome, estado e foto aparecem na votação. O CPF, se informado, é usado só para evitar candidatura repetida e não é mostrado no site.'}
       </p>
 
       {erro && <p className="text-coral font-semibold">{erro}</p>}

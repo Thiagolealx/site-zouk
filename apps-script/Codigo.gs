@@ -369,7 +369,8 @@ function inscrever(d) {
   const categoria = String(d.categoria || '').toLowerCase()
 
   if (!nome || !sobrenome) return { ok: false, erro: 'Informe nome e sobrenome.' }
-  if (!cpfValido(cpf)) return { ok: false, erro: 'CPF inválido.' }
+  // CPF é opcional (quem dedura um amigo não sabe o dele); se vier, tem de valer.
+  if (cpf && !cpfValido(cpf)) return { ok: false, erro: 'CPF inválido.' }
   if (UFS.indexOf(estado) < 0) return { ok: false, erro: 'Escolha o estado.' }
   if (CATEGORIAS.indexOf(categoria) < 0) return { ok: false, erro: 'Escolha rei ou rainha.' }
 
@@ -381,7 +382,7 @@ function inscrever(d) {
 
   const aba = aba_('Candidatos')
   const linhas = linhasComo(aba)
-  const anterior = linhas.find((l) => cpfDaCelula(l.cpf) === cpf)
+  const anterior = cpf && linhas.find((l) => soDigitos(l.cpf) && cpfDaCelula(l.cpf) === cpf)
   if (anterior) {
     // Reenvio da mesma candidatura (resposta anterior perdida): confirma.
     const repetido = String(anterior.nome) === nome && String(anterior.sobrenome) === sobrenome &&
@@ -389,6 +390,11 @@ function inscrever(d) {
     if (repetido) return { ok: true }
     return { ok: false, erro: 'Já existe uma candidatura com este CPF.' }
   }
+  // Sem CPF para comparar (ou candidatura dedurada antes, sem CPF): mesmo nome
+  // e sobrenome na mesma categoria já está na cédula. Confirma sem duplicar.
+  const chave = (n, s, c) => [n, s, c].map((v) => String(v).trim().toLowerCase()).join('|')
+  const mesmaPessoa = linhas.find((l) => chave(l.nome, l.sobrenome, l.categoria) === chave(nome, sobrenome, categoria))
+  if (mesmaPessoa) return { ok: true }
 
   const id = 'C' + Utilities.getUuid().slice(0, 8).toUpperCase()
   const ext = m[1].split('/')[1].replace('jpeg', 'jpg')
@@ -401,7 +407,7 @@ function inscrever(d) {
   // come o zero da frente.
   // Entra aprovada: aparece na votação na hora. Para tirar alguém da cédula,
   // troque SIM por NAO na coluna aprovado.
-  aba.appendRow([id, new Date(), nome, sobrenome, "'" + cpf, estado, categoria, fotoUrl, 'SIM'])
+  aba.appendRow([id, new Date(), nome, sobrenome, cpf ? "'" + cpf : '', estado, categoria, fotoUrl, 'SIM'])
   // Escrita do script não dispara onEdit: limpa o cache aqui para a nova
   // candidatura não esperar os 20 s.
   limparCache()
