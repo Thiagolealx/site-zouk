@@ -138,3 +138,35 @@ test('quem acabou de se candidatar já aparece na cédula', async ({ page }) => 
   await page.goto('/votacao')
   await expect(page.getByRole('button', { name: /Lia Nova/ })).toBeVisible()
 })
+
+async function dedurar(page, { nome, sobrenome, categoria }) {
+  await page.getByRole('checkbox', { name: /Dedurar um amigo/ }).check()
+  await page.getByRole('button', { name: new RegExp(`${categoria} do baile`) }).click()
+  await page.getByLabel('Nome', { exact: true }).fill(nome)
+  await page.getByLabel('Sobrenome').fill(sobrenome)
+  await page.getByLabel('Estado').selectOption('PB')
+  await page.locator('input[type=file]').setInputFiles(FOTO)
+  await expect(page.getByAltText('Foto do amigo')).toBeVisible()
+  await page.getByRole('button', { name: 'Enviar candidatura' }).click()
+}
+
+test('dedurar dois amigos diferentes: entram os dois', async ({ page }) => {
+  const { backend } = await ligarBackend(page, sementePadrao({ votacao: 'NAO' }))
+  await page.goto('/rei-e-rainha')
+  await dedurar(page, { nome: 'Pedro', sobrenome: 'Um', categoria: 'Rei' })
+  await expect(page.getByText('Amigo dedurado')).toBeVisible()
+
+  await page.reload()
+  await dedurar(page, { nome: 'Paula', sobrenome: 'Dois', categoria: 'Rainha' })
+  await expect(page.getByText('Amigo dedurado')).toBeVisible()
+  expect(backend.linhas('Candidatos')).toHaveLength(2)
+})
+
+test('dedurar com resposta perdida: o site reenvia e não duplica', async ({ page }) => {
+  const { backend, postsRecebidos } = await ligarBackend(page, sementePadrao({ votacao: 'NAO' }), { perderPrimeiraResposta: true })
+  await page.goto('/rei-e-rainha')
+  await dedurar(page, { nome: 'Pedro', sobrenome: 'Amigo', categoria: 'Rei' })
+  await expect(page.getByText('Amigo dedurado')).toBeVisible()
+  expect(postsRecebidos).toHaveLength(2)
+  expect(backend.linhas('Candidatos')).toHaveLength(1)
+})
