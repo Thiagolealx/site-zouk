@@ -7,3 +7,6 @@ dist
 tests/relatorio
 test-results
 tests/carga/cedula.png
+
+# Códigos de votação com nome das pessoas (tools/codigos-eleitores.mjs)
+eleitores/

@@ -11,7 +11,8 @@
     "test:carga": "node tests/carga/simulacao.mjs 3000 300",
     "test:google": "node tests/carga/google.mjs leitura",
     "test:real": "node tests/carga/real.mjs",
-    "test:pico": "node tests/carga/pico.mjs"
+    "test:pico": "node tests/carga/pico.mjs",
+    "test:ao-vivo": "node tests/demo/ao-vivo.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
